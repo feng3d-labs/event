@@ -2,8 +2,8 @@
   "bundle": {
     "commonSourceDirectory": "..",
     "sourceFiles": [
-      "../src/EventDispatcher.ts",
       "../src/FEvent.ts",
+      "../src/EventDispatcher.ts",
       "../src/ObjectEvent.ts"
     ],
     "js": {
