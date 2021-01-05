@@ -386,4 +386,11 @@ var feng3d;
      */
     feng3d.objectevent = feng3d.event;
 })(feng3d || (feng3d = {}));
-//# sourceMappingURL=evnet.js.map
+var feng3d;
+(function (feng3d) {
+    /**
+     * 全局事件
+     */
+    feng3d.globalDispatcher = new feng3d.EventDispatcher();
+})(feng3d || (feng3d = {}));
+//# sourceMappingURL=event.js.map

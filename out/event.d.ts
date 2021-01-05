@@ -274,4 +274,41 @@ declare namespace feng3d {
         };
     }
 }
-//# sourceMappingURL=evnet.d.ts.map
+declare namespace feng3d {
+    /**
+     * 全局事件
+     */
+    var globalDispatcher: IEventDispatcher<GlobalEvents>;
+    /**
+     * 事件列表
+     */
+    interface GlobalEvents {
+        /**
+         * shader资源发生变化
+         */
+        "asset.shaderChanged": any;
+        /**
+         * 脚本发生变化
+         */
+        "asset.scriptChanged": any;
+        /**
+         * 图片资源发生变化
+         */
+        "asset.imageAssetChanged": {
+            url: string;
+        };
+        /**
+         * 解析出资源
+         */
+        "asset.parsed": any;
+        /**
+         * 删除文件
+         */
+        "fs.delete": string;
+        /**
+         * 写文件
+         */
+        "fs.write": string;
+    }
+}
+//# sourceMappingURL=event.d.ts.map
