@@ -11,6 +11,28 @@ var feng3d;
             return [target["parent"]];
         };
         /**
+         * Return an array listing the events for which the emitter has registered
+         * listeners.
+         */
+        FEvent.prototype.eventNames = function (obj) {
+            var names = Object.keys(this.feventMap.get(obj));
+            return names;
+        };
+        // /**
+        //  * Return the listeners registered for a given event.
+        //  */
+        // listeners(obj: any, type: string)
+        // {
+        //     return this.feventMap.get(obj)?.[type] || [];
+        // }
+        /**
+         * Return the number of listeners listening to a given event.
+         */
+        FEvent.prototype.listenerCount = function (obj, type) {
+            var _a, _b;
+            return ((_b = (_a = this.feventMap.get(obj)) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
+        };
+        /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。
          * @param listener					处理事件的监听器函数。
@@ -21,6 +43,7 @@ var feng3d;
             if (thisObject === void 0) { thisObject = null; }
             if (priority === void 0) { priority = 0; }
             this.on(obj, type, listener, thisObject, priority, true);
+            return this;
         };
         /**
          * 派发事件
@@ -46,7 +69,7 @@ var feng3d;
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        FEvent.prototype.dispatch = function (obj, type, data, bubbles) {
+        FEvent.prototype.emit = function (obj, type, data, bubbles) {
             if (bubbles === void 0) { bubbles = false; }
             var e = this.makeEvent(type, data, bubbles);
             this.dispatchEvent(obj, e);
@@ -60,10 +83,7 @@ var feng3d;
          * @return 			                如果指定类型的监听器已注册，则值为 true；否则，值为 false。
          */
         FEvent.prototype.has = function (obj, type) {
-            var objectListener = this.feventMap.get(obj);
-            if (!objectListener)
-                return false;
-            return !!(objectListener[type] && objectListener[type].length);
+            return this.listenerCount(obj, type) > 0;
         };
         /**
          * 为监听对象新增指定类型的事件监听。
@@ -85,6 +105,7 @@ var feng3d;
                 objectListener = { __anyEventType__: [] };
                 this.feventMap.set(obj, objectListener);
             }
+            thisObject = thisObject || obj;
             var listeners = objectListener[type] = objectListener[type] || [];
             for (var i = 0; i < listeners.length; i++) {
                 var element = listeners[i];
@@ -100,6 +121,7 @@ var feng3d;
                 }
             }
             listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: once });
+            return this;
         };
         /**
          * 移除监听
@@ -121,6 +143,7 @@ var feng3d;
                 delete objectListener[type];
                 return;
             }
+            thisObject = thisObject || obj;
             var listeners = objectListener[type];
             if (listeners) {
                 for (var i = listeners.length - 1; i >= 0; i--) {
@@ -133,6 +156,14 @@ var feng3d;
                     delete objectListener[type];
                 }
             }
+            return this;
+        };
+        /**
+         * Remove all listeners, or those of the specified event.
+         */
+        FEvent.prototype.offAll = function (obj, type) {
+            this.off(obj, type);
+            return this;
         };
         /**
          * 监听对象的任意事件，该对象的任意事件都将触发该监听器的调用。
@@ -164,6 +195,7 @@ var feng3d;
                 }
             }
             listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: false });
+            return this;
         };
         /**
          * 移除监听对象的任意事件。
@@ -188,6 +220,7 @@ var feng3d;
                     }
                 }
             }
+            return this;
         };
         /**
          * 初始化事件对象
@@ -275,9 +308,29 @@ var feng3d;
     /**
      * 事件适配器
      */
-    var EventDispatcher = /** @class */ (function () {
-        function EventDispatcher() {
+    var EventEmitter = /** @class */ (function () {
+        function EventEmitter() {
         }
+        /**
+         * Return an array listing the events for which the emitter has registered
+         * listeners.
+         */
+        EventEmitter.prototype.eventNames = function () {
+            feng3d.event.eventNames(this);
+        };
+        // /**
+        //  * Return the listeners registered for a given event.
+        //  */
+        // listeners(type: string)
+        // {
+        //     return event.listeners(this, type);
+        // }
+        /**
+         * Return the number of listeners listening to a given event.
+         */
+        EventEmitter.prototype.listenerCount = function (type) {
+            return feng3d.event.listenerCount(this, type);
+        };
         /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。
@@ -285,10 +338,11 @@ var feng3d;
          * @param thisObject                listener函数作用域
          * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
          */
-        EventDispatcher.prototype.once = function (type, listener, thisObject, priority) {
+        EventEmitter.prototype.once = function (type, listener, thisObject, priority) {
             if (thisObject === void 0) { thisObject = null; }
             if (priority === void 0) { priority = 0; }
             feng3d.event.on(this, type, listener, thisObject, priority, true);
+            return this;
         };
         /**
          * 派发事件
@@ -298,7 +352,7 @@ var feng3d;
          * @param e   事件对象
          * @returns 返回事件是否被该对象处理
          */
-        EventDispatcher.prototype.dispatchEvent = function (e) {
+        EventEmitter.prototype.emitEvent = function (e) {
             return feng3d.event.dispatchEvent(this, e);
         };
         /**
@@ -307,9 +361,9 @@ var feng3d;
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        EventDispatcher.prototype.dispatch = function (type, data, bubbles) {
+        EventEmitter.prototype.emit = function (type, data, bubbles) {
             if (bubbles === void 0) { bubbles = false; }
-            return feng3d.event.dispatch(this, type, data, bubbles);
+            return feng3d.event.emit(this, type, data, bubbles);
         };
         /**
          * 检查 Event 对象是否为特定事件类型注册了任何侦听器.
@@ -317,7 +371,7 @@ var feng3d;
          * @param type		事件的类型。
          * @return 			如果指定类型的侦听器已注册，则值为 true；否则，值为 false。
          */
-        EventDispatcher.prototype.has = function (type) {
+        EventEmitter.prototype.has = function (type) {
             return feng3d.event.has(this, type);
         };
         /**
@@ -326,10 +380,11 @@ var feng3d;
          * @param listener					处理事件的侦听器函数。
          * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
          */
-        EventDispatcher.prototype.on = function (type, listener, thisObject, priority, once) {
+        EventEmitter.prototype.on = function (type, listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
             if (once === void 0) { once = false; }
             feng3d.event.on(this, type, listener, thisObject, priority, once);
+            return this;
         };
         /**
          * 移除监听
@@ -337,8 +392,16 @@ var feng3d;
          * @param type						事件的类型。
          * @param listener					要删除的侦听器对象。
          */
-        EventDispatcher.prototype.off = function (type, listener, thisObject) {
+        EventEmitter.prototype.off = function (type, listener, thisObject) {
             feng3d.event.off(this, type, listener, thisObject);
+            return this;
+        };
+        /**
+         * Remove all listeners, or those of the specified event.
+         */
+        EventEmitter.prototype.offAll = function (type) {
+            feng3d.event.offAll(this, type);
+            return this;
         };
         /**
          * 监听对象的任意事件，该对象的任意事件都将触发该监听器的调用。
@@ -347,9 +410,10 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
          */
-        EventDispatcher.prototype.onAny = function (listener, thisObject, priority) {
+        EventEmitter.prototype.onAny = function (listener, thisObject, priority) {
             if (priority === void 0) { priority = 0; }
             feng3d.event.onAny(this, listener, thisObject, priority);
+            return this;
         };
         /**
          * 移除监听对象的任意事件。
@@ -357,26 +421,27 @@ var feng3d;
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          */
-        EventDispatcher.prototype.offAny = function (listener, thisObject) {
+        EventEmitter.prototype.offAny = function (listener, thisObject) {
             feng3d.event.offAny(this, listener, thisObject);
+            return this;
         };
         /**
          * 处理事件
          * @param e 事件
          */
-        EventDispatcher.prototype.handleEvent = function (e) {
+        EventEmitter.prototype.handleEvent = function (e) {
             feng3d.event["handleEvent"](this, e);
         };
         /**
          * 处理事件冒泡
          * @param e 事件
          */
-        EventDispatcher.prototype.handelEventBubbles = function (e) {
+        EventEmitter.prototype.handelEventBubbles = function (e) {
             feng3d.event["handelEventBubbles"](this, e);
         };
-        return EventDispatcher;
+        return EventEmitter;
     }());
-    feng3d.EventDispatcher = EventDispatcher;
+    feng3d.EventEmitter = EventEmitter;
 })(feng3d || (feng3d = {}));
 var feng3d;
 (function (feng3d) {
@@ -390,6 +455,6 @@ var feng3d;
     /**
      * 全局事件
      */
-    feng3d.globalDispatcher = new feng3d.EventDispatcher();
+    feng3d.globalEmitter = new feng3d.EventEmitter();
 })(feng3d || (feng3d = {}));
 //# sourceMappingURL=index.js.map

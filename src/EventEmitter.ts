@@ -1,20 +1,45 @@
 namespace feng3d
 {
 
-    export interface IEventDispatcher<T>
+    export interface IEventEmitter<T>
     {
-        once<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number): void;
-        dispatch<K extends keyof T>(type: K, data?: T[K], bubbles?: boolean): Event<T[K]>;
+        once<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number): this;
+        emit<K extends keyof T>(type: K, data?: T[K], bubbles?: boolean): Event<T[K]>;
         has<K extends keyof T>(type: K): boolean;
-        on<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number, once?: boolean): void;
-        off<K extends keyof T>(type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): void;
+        on<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number, once?: boolean): this;
+        off<K extends keyof T>(type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): this;
     }
 
 	/**
 	 * 事件适配器
 	 */
-    export class EventDispatcher
+    export class EventEmitter
     {
+        /**
+         * Return an array listing the events for which the emitter has registered
+         * listeners.
+         */
+        eventNames()
+        {
+            event.eventNames(this);
+        }
+
+        // /**
+        //  * Return the listeners registered for a given event.
+        //  */
+        // listeners(type: string)
+        // {
+        //     return event.listeners(this, type);
+        // }
+
+        /**
+         * Return the number of listeners listening to a given event.
+         */
+        listenerCount(type: string)
+        {
+            return event.listenerCount(this, type);
+        }
+
         /**
          * 监听一次事件后将会被移除
 		 * @param type						事件的类型。
@@ -25,6 +50,7 @@ namespace feng3d
         once(type: string, listener: (event: Event<any>) => void, thisObject = null, priority = 0)
         {
             event.on(this, type, listener, thisObject, priority, true);
+            return this;
         }
 
         /**
@@ -35,7 +61,7 @@ namespace feng3d
          * @param e   事件对象
          * @returns 返回事件是否被该对象处理
          */
-        dispatchEvent(e: Event<any>)
+        emitEvent(e: Event<any>)
         {
             return event.dispatchEvent(this, e);
         }
@@ -46,9 +72,9 @@ namespace feng3d
 		 * @param data                      事件携带的自定义数据。
 		 * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        dispatch(type: string, data?: any, bubbles = false)
+        emit(type: string, data?: any, bubbles = false)
         {
-            return event.dispatch(this, type, data, bubbles);
+            return event.emit(this, type, data, bubbles);
         }
 
         /**
@@ -71,6 +97,7 @@ namespace feng3d
         on(type: string, listener: (event: Event<any>) => void, thisObject?: any, priority = 0, once = false)
         {
             event.on(this, type, listener, thisObject, priority, once);
+            return this;
         }
 
         /**
@@ -82,6 +109,16 @@ namespace feng3d
         off(type?: string, listener?: (event: Event<any>) => void, thisObject?: any)
         {
             event.off(this, type, listener, thisObject);
+            return this;
+        }
+
+        /**
+         * Remove all listeners, or those of the specified event.
+         */
+        offAll(type?: string)
+        {
+            event.offAll(this, type);
+            return this;
         }
 
         /**
@@ -94,6 +131,7 @@ namespace feng3d
         onAny(listener: (event: Event<any>) => void, thisObject?: any, priority = 0)
         {
             event.onAny(this, listener, thisObject, priority);
+            return this;
         }
 
         /**
@@ -105,6 +143,7 @@ namespace feng3d
         offAny(listener?: (event: Event<any>) => void, thisObject?: any)
         {
             event.offAny(this, listener, thisObject);
+            return this;
         }
 
         /**
