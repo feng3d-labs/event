@@ -6,12 +6,11 @@
         "declarationMap": true,
         "declaration": true,
         "composite": true,
-        "strict": true,
-        "experimentalDecorators": true,
-        "outFile": "out/event.js",
         "lib": [
-            "ES2015",
+            "ES2017",
+            "DOM"
         ],
+        "outFile": "./dist/index.js",
     },
     "files": [
         // 事件模块

@@ -26,7 +26,7 @@ declare namespace feng3d {
          * @param thisObject                listener函数作用域
          * @param priority					事件监听器的优先级。数字越大，优先级越高。默认为0。
          */
-        once(obj: Object, type: string, listener: (event: Event<any>) => void, thisObject?: null, priority?: number): void;
+        once(obj: Object, type: string, listener: (event: Event<any>) => void, thisObject?: any, priority?: number): void;
         /**
          * 派发事件
          *
@@ -190,7 +190,7 @@ declare namespace feng3d {
          * @param thisObject                listener函数作用域
          * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
          */
-        once(type: string, listener: (event: Event<any>) => void, thisObject?: null, priority?: number): void;
+        once(type: string, listener: (event: Event<any>) => void, thisObject?: any, priority?: number): void;
         /**
          * 派发事件
          *
@@ -311,4 +311,4 @@ declare namespace feng3d {
         "fs.write": string;
     }
 }
-//# sourceMappingURL=event.d.ts.map
+//# sourceMappingURL=index.d.ts.map

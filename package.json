@@ -1,0 +1,25 @@
+{
+  "name": "@feng3d/events",
+  "version": "0.0.1",
+  "description": "事件系统",
+  "main": "dist/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/feng3d/eventsystem.git"
+  },
+  "keywords": [
+    "event",
+    "feng3d"
+  ],
+  "author": "feng",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  }
+}

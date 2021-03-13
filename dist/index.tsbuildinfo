@@ -1,0 +1,30 @@
+{
+  "bundle": {
+    "commonSourceDirectory": "..",
+    "sourceFiles": [
+      "../src/FEvent.ts",
+      "../src/EventDispatcher.ts",
+      "../src/ObjectEvent.ts",
+      "../src/GlobalDispatcher.ts"
+    ],
+    "js": {
+      "sections": [
+        {
+          "pos": 0,
+          "end": 15250,
+          "kind": "text"
+        }
+      ]
+    },
+    "dts": {
+      "sections": [
+        {
+          "pos": 0,
+          "end": 9998,
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "version": "3.9.9"
+}

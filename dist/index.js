@@ -1,4 +1,3 @@
-"use strict";
 var feng3d;
 (function (feng3d) {
     /**
@@ -393,4 +392,4 @@ var feng3d;
      */
     feng3d.globalDispatcher = new feng3d.EventDispatcher();
 })(feng3d || (feng3d = {}));
-//# sourceMappingURL=event.js.map
+//# sourceMappingURL=index.js.map
