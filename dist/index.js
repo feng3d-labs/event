@@ -442,18 +442,4 @@ var feng3d;
     }());
     feng3d.EventEmitter = EventEmitter;
 })(feng3d || (feng3d = {}));
-var feng3d;
-(function (feng3d) {
-    /**
-     * 只针对Object的事件
-     */
-    feng3d.objectevent = feng3d.event;
-})(feng3d || (feng3d = {}));
-var feng3d;
-(function (feng3d) {
-    /**
-     * 全局事件
-     */
-    feng3d.globalEmitter = new feng3d.EventEmitter();
-})(feng3d || (feng3d = {}));
 //# sourceMappingURL=index.js.map

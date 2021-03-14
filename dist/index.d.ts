@@ -4,16 +4,6 @@ declare namespace feng3d {
      */
     export var event: FEvent;
     /**
-     * 用于适配不同对象对于的事件
-     */
-    export interface ObjectEventDispatcher<O, T> {
-        once<K extends keyof T>(target: O, type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number): this;
-        emit<K extends keyof T>(target: O, type: K, data?: T[K], bubbles?: boolean): Event<T[K]>;
-        has<K extends keyof T>(target: O, type: K): boolean;
-        on<K extends keyof T>(target: O, type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number, once?: boolean): this;
-        off<K extends keyof T>(target: O, type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): this;
-    }
-    /**
      * 事件
      */
     export class FEvent {
@@ -185,17 +175,10 @@ declare namespace feng3d {
     export {};
 }
 declare namespace feng3d {
-    interface IEventEmitter<T> {
-        once<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number): this;
-        emit<K extends keyof T>(type: K, data?: T[K], bubbles?: boolean): Event<T[K]>;
-        has<K extends keyof T>(type: K): boolean;
-        on<K extends keyof T>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number, once?: boolean): this;
-        off<K extends keyof T>(type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): this;
-    }
     /**
      * 事件适配器
      */
-    class EventEmitter<T> {
+    class EventEmitter<T = any> {
         /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
@@ -279,62 +262,6 @@ declare namespace feng3d {
          * @param e 事件
          */
         protected handelEventBubbles(e: Event<any>): void;
-    }
-}
-declare namespace feng3d {
-    /**
-     * 只针对Object的事件
-     */
-    var objectevent: ObjectEventDispatcher<Object, ObjectEventType>;
-    /**
-     * Object 事件类型
-     */
-    interface ObjectEventType {
-        /**
-         * 属性值变化
-         */
-        propertyValueChanged: {
-            property: string;
-            oldValue: any;
-            newValue: any;
-        };
-    }
-}
-declare namespace feng3d {
-    /**
-     * 全局事件
-     */
-    var globalEmitter: IEventEmitter<GlobalEvents>;
-    /**
-     * 事件列表
-     */
-    interface GlobalEvents {
-        /**
-         * shader资源发生变化
-         */
-        "asset.shaderChanged": any;
-        /**
-         * 脚本发生变化
-         */
-        "asset.scriptChanged": any;
-        /**
-         * 图片资源发生变化
-         */
-        "asset.imageAssetChanged": {
-            url: string;
-        };
-        /**
-         * 解析出资源
-         */
-        "asset.parsed": any;
-        /**
-         * 删除文件
-         */
-        "fs.delete": string;
-        /**
-         * 写文件
-         */
-        "fs.write": string;
     }
 }
 //# sourceMappingURL=index.d.ts.map

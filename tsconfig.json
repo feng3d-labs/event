@@ -16,7 +16,5 @@
         // 事件模块
         "src/FEvent.ts",
         "src/EventEmitter.ts",
-        "src/ObjectEvent.ts",
-        "src/GlobalEmitter.ts",
     ]
 }

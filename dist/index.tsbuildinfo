@@ -3,15 +3,13 @@
     "commonSourceDirectory": "..",
     "sourceFiles": [
       "../src/FEvent.ts",
-      "../src/EventEmitter.ts",
-      "../src/ObjectEvent.ts",
-      "../src/GlobalEmitter.ts"
+      "../src/EventEmitter.ts"
     ],
     "js": {
       "sections": [
         {
           "pos": 0,
-          "end": 17363,
+          "end": 17068,
           "kind": "text"
         }
       ]
@@ -20,7 +18,7 @@
       "sections": [
         {
           "pos": 0,
-          "end": 11000,
+          "end": 8697,
           "kind": "text"
         }
       ]
