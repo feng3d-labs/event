@@ -339,7 +339,6 @@ var feng3d;
          * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
          */
         EventEmitter.prototype.once = function (type, listener, thisObject, priority) {
-            if (thisObject === void 0) { thisObject = null; }
             if (priority === void 0) { priority = 0; }
             feng3d.event.on(this, type, listener, thisObject, priority, true);
             return this;
