@@ -176,7 +176,7 @@ declare namespace feng3d {
 }
 declare namespace feng3d {
     /**
-     * 事件适配器
+     * 事件派发器
      */
     class EventEmitter<T = any> {
         /**
@@ -262,6 +262,13 @@ declare namespace feng3d {
          * @param e 事件
          */
         protected handelEventBubbles(e: Event<any>): void;
+    }
+}
+declare namespace feng3d {
+    /**
+     * 事件冒泡派发器，可处理冒泡事件。
+     */
+    class EventBubbleEmitter<T = any> extends EventEmitter<T> {
     }
 }
 //# sourceMappingURL=index.d.ts.map

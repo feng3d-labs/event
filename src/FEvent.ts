@@ -282,9 +282,9 @@ namespace feng3d
 		 * @param data                      事件携带的自定义数据。
 		 * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        makeEvent<T>(type: string, data: T, bubbles = false): Event<T>
+        makeEvent<T>(type: string, data: T): Event<T>
         {
-            return { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
+            return { type: type, data: data, target: null, currentTarget: null, targets: [], isStop: false, handles: [] };
         }
 
         /**
@@ -391,10 +391,10 @@ namespace feng3d
          */
         data: T;
 
-		/**
-		 * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
-		 */
-        bubbles: boolean
+        /**
+         * 是否停止处理事件监听器
+         */
+        isStop: boolean
 
 		/**
 		 * 事件目标。
@@ -405,16 +405,6 @@ namespace feng3d
 		 * 当前正在使用某个事件监听器处理 Event 对象的对象。
 		 */
         currentTarget: any;
-
-        /**
-         * 是否停止处理事件监听器
-         */
-        isStop: boolean
-
-        /**
-         * 是否停止冒泡
-         */
-        isStopBubbles: boolean
 
         /**
          * 事件流过的对象列表，事件路径

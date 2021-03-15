@@ -2,7 +2,7 @@ namespace feng3d
 {
 
     /**
-     * 事件适配器
+     * 事件派发器
      */
     export class EventEmitter<T = any>
     {
