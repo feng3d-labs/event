@@ -2,51 +2,58 @@ namespace feng3d
 {
 
     /**
-     * 事件派发器
+     * 事件
      */
-    export class EventEmitter<T = any>
-    {
-        private static feventMap = new Map<any, ObjectListener>();
-        private static targetMap = new Map<any, EventEmitter>();
+    export var event: FEvent;
 
-        constructor(target?: any)
+    /**
+     * 事件
+     */
+    export class FEvent
+    {
+        private feventMap = new Map<any, ObjectListener>();
+
+        private getBubbleTargets(target: Object)
         {
-            if (target === undefined)
-            {
-                target = this;
-            }
-            console.assert(!EventEmitter.targetMap[target], `同一个 ${target} 对象无法对应两个 EventEmitter！`);
-            EventEmitter.targetMap[target] = this;
+            return [target["parent"]];
         }
 
         /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
          */
-        eventNames()
+        eventNames(obj: any)
         {
-            const names = Object.keys(EventEmitter.feventMap.get(this));
+            const names = Object.keys(this.feventMap.get(obj));
             return names;
         }
+
+        // /**
+        //  * Return the listeners registered for a given event.
+        //  */
+        // listeners(obj: any, type: string)
+        // {
+        //     return this.feventMap.get(obj)?.[type] || [];
+        // }
 
         /**
          * Return the number of listeners listening to a given event.
          */
-        listenerCount<K extends keyof T & string>(type: K)
+        listenerCount(obj: any, type: string)
         {
-            return EventEmitter.feventMap.get(this)?.[type]?.length || 0;
+            return this.feventMap.get(obj)?.[type]?.length || 0;
         }
 
         /**
          * 监听一次事件后将会被移除
-         * @param type						事件的类型。
-         * @param listener					处理事件的侦听器函数。
-         * @param thisObject                listener函数作用域
-         * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
+		 * @param type						事件的类型。
+		 * @param listener					处理事件的监听器函数。
+		 * @param thisObject                listener函数作用域
+         * @param priority					事件监听器的优先级。数字越大，优先级越高。默认为0。
          */
-        once<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0): this
+        once(obj: Object, type: string, listener: (event: Event<any>) => void, thisObject = null, priority = 0)
         {
-            this.on(type, listener, thisObject, priority, true);
+            this.on(obj, type, listener, thisObject, priority, true);
             return this;
         }
 
@@ -55,68 +62,72 @@ namespace feng3d
          * 
          * 当事件重复流向一个对象时将不会被处理。
          * 
-         * @param e   事件对象
-         * @returns 返回事件是否被该对象处理
+         * @param e                 事件对象。
+         * @returns                 返回事件是否被该对象处理。
          */
-        emitEvent<K extends keyof T & string>(e: Event<T[K]>)
+        dispatchEvent(obj: Object, e: Event<any>)
         {
             var targets = e.targets = e.targets || [];
-            if (targets.indexOf(this) != -1)
+            if (targets.indexOf(<any>obj) != -1)
                 return false;
-            targets.push(this);
+            targets.push(<any>obj);
 
             e.handles = [];
 
-            this.handleEvent(e);
+            this.handleEvent(obj, e);
+
+            this.handelEventBubbles(obj, e);
 
             return true;
         }
 
         /**
-         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
-         * @param type                      事件的类型。类型区分大小写。
-         * @param data                      事件携带的自定义数据。
-         * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+		 * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+		 * @param type                      事件的类型。类型区分大小写。
+		 * @param data                      事件携带的自定义数据。
+		 * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        emit<K extends keyof T & string>(type: K, data?: T[K])
+        emit(obj: Object, type: string, data?: any, bubbles = false)
         {
-            var e: Event<T[K]> = { type: type, data: data, target: null, currentTarget: null, isStop: false, targets: [], handles: [] };
-
-            return this.emitEvent(e);
+            var e: Event<any> = this.makeEvent(type, data);
+            this.dispatchEvent(obj, e);
+            return e;
         }
 
         /**
-         * 检查 Event 对象是否为特定事件类型注册了任何侦听器. 
-         *
-         * @param type		事件的类型。
-         * @return 			如果指定类型的侦听器已注册，则值为 true；否则，值为 false。
+		 * 检查 被监听对象 是否为特定事件类型注册了任何监听器. 
+         * 
+		 * @param obj                       被监听对象。
+		 * @param type		                事件的类型。
+		 * @return 			                如果指定类型的监听器已注册，则值为 true；否则，值为 false。
          */
-        has<K extends keyof T & string>(type: K): boolean
+        has(obj: Object, type: string)
         {
-            return this.listenerCount(type) > 0;
+            return this.listenerCount(obj, type) > 0;
         }
 
         /**
          * 为监听对象新增指定类型的事件监听。
          * 
+         * @param obj                       被监听对象。
 		 * @param type						事件的类型。
 		 * @param listener					处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority					事件监听器的优先级。数字越大，优先级越高。默认为0。
          * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
          */
-        on<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false): this
+        on(obj: Object, type: string, listener: (event: Event<any>) => any, thisObject?: any, priority = 0, once = false)
         {
             if (listener == null) return;
 
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.feventMap.get(obj);
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] }
-                EventEmitter.feventMap.set(this, objectListener)
+                this.feventMap.set(obj, objectListener)
             }
 
-            thisObject = thisObject || this;
+            thisObject = thisObject || obj;
             var listeners: ListenerVO[] = objectListener[type] = objectListener[type] || [];
             for (var i = 0; i < listeners.length; i++)
             {
@@ -142,19 +153,20 @@ namespace feng3d
         /**
          * 移除监听
          * 
+         * @param obj                       被监听对象。
 		 * @param type						事件的类型。可选。该值为空时所有被监听对象上的监听均将被移除。
 		 * @param listener					要删除的监听器对象。可选。该值为空时所有指定类型的监听均将被移除。
          * @param thisObject                监听器的上下文。可选。
          */
-        off<K extends keyof T & string>(type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): this
+        off(obj: Object, type?: string, listener?: (event: Event<any>) => any, thisObject?: any)
         {
             if (!type)
             {
-                EventEmitter.feventMap.delete(this)
+                this.feventMap.delete(obj)
                 return;
             }
 
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.feventMap.get(obj);
             if (!objectListener) return;
 
             if (!listener)
@@ -163,7 +175,7 @@ namespace feng3d
                 return;
             }
 
-            thisObject = thisObject || this;
+            thisObject = thisObject || obj;
 
             var listeners = objectListener[type];
             if (listeners)
@@ -185,30 +197,29 @@ namespace feng3d
         }
 
         /**
-         * 移除所有监听
-         * 
-		 * @param type						事件的类型。可选。该值为空时所有被监听对象上的监听均将被移除。
+         * Remove all listeners, or those of the specified event.
          */
-        offAll<K extends keyof T & string>(type?: K)
+        offAll(obj: any, type?: string)
         {
-            this.off(type);
+            this.off(obj, type);
             return this;
         }
 
         /**
          * 监听对象的任意事件，该对象的任意事件都将触发该监听器的调用。
          * 
+         * @param obj                       被监听对象。
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
          */
-        onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0)
+        onAny(obj: Object, listener: (event: Event<any>) => void, thisObject?: any, priority = 0)
         {
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.feventMap.get(obj);
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] };
-                EventEmitter.feventMap.set(this, objectListener)
+                this.feventMap.set(obj, objectListener)
             }
 
             var listeners: ListenerVO[] = objectListener.__anyEventType__;
@@ -236,12 +247,13 @@ namespace feng3d
         /**
          * 移除监听对象的任意事件。
          * 
+         * @param obj                       被监听对象。
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          */
-        offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
+        offAny(obj: Object, listener?: (event: any) => void, thisObject?: any)
         {
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.feventMap.get(obj);
             if (!listener)
             {
                 if (objectListener)
@@ -264,20 +276,32 @@ namespace feng3d
         }
 
         /**
+		 * 初始化事件对象
+         * 
+		 * @param type                      事件的类型。类型区分大小写。
+		 * @param data                      事件携带的自定义数据。
+		 * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+         */
+        makeEvent<T>(type: string, data: T): Event<T>
+        {
+            return { type: type, data: data, target: null, currentTarget: null, targets: [], isStop: false, handles: [] };
+        }
+
+        /**
          * 处理事件
          * @param e 事件
          */
-        protected handleEvent<K extends keyof T & string>(e: Event<T[K]>)
+        protected handleEvent(obj: Object, e: Event<any>)
         {
             //设置目标
-            e.target || (e.target = this);
+            e.target || (e.target = <any>obj);
             try
             {
                 //使用 try 处理 MouseEvent 等无法更改currentTarget的对象
-                e.currentTarget = this;
+                e.currentTarget = <any>obj;
             } catch (error) { }
             //
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.feventMap.get(obj);
             if (!objectListener) return;
 
             var listeners: ListenerVO[] = objectListener[e.type];
@@ -315,53 +339,41 @@ namespace feng3d
                 }
             }
         }
+
+        /**
+         * 处理事件冒泡
+         * @param e 事件
+         */
+        protected handelEventBubbles(obj: Object, e: Event<any>)
+        {
+            if (e.bubbles && !e.isStopBubbles)
+            {
+                var bubbleTargets = this.getBubbleTargets(obj);
+                for (var i = 0, n = bubbleTargets.length; i < n; i++)
+                {
+                    var bubbleTarget = bubbleTargets[i];
+                    if (!e.isStop && bubbleTarget)
+                    {
+                        if (bubbleTarget.dispatchEvent)
+                        {
+                            bubbleTarget.dispatchEvent(e);
+                        } else
+                        {
+                            this.dispatchEvent(bubbleTarget, e);
+                        }
+                    }
+                }
+            }
+        }
+
     }
+
+    event = new FEvent();
 
     interface ObjectListener
     {
         [type: string]: ListenerVO[];
         __anyEventType__: ListenerVO[];
-    }
-
-	/**
-	 * 事件
-	 */
-    export interface Event<T>
-    {
-        /**
-         * 事件的类型。类型区分大小写。
-         */
-        type: string;
-
-        /**
-         * 事件携带的自定义数据
-         */
-        data: T;
-
-        /**
-         * 事件目标。
-         */
-        target: EventEmitter;
-
-        /**
-         * 当前正在使用某个事件监听器处理 Event 对象的对象。
-         */
-        currentTarget: EventEmitter;
-
-        /**
-         * 是否停止处理事件监听器
-         */
-        isStop: boolean
-
-        /**
-         * 事件流过的对象列表，事件路径
-         */
-        targets: EventEmitter[];
-
-        /**
-         * 处理列表
-         */
-        handles: ListenerVO[];
     }
 
     /**

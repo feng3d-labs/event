@@ -16,5 +16,6 @@
         // 事件模块
         "src/EventEmitter.ts",
         "src/EventBubbleEmitter.ts",
+        "src/FEvent.ts",
     ]
 }
