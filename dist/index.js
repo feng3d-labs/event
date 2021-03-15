@@ -1,7 +1,20 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var feng3d;
 (function (feng3d) {
     /**
-     * 事件适配器
+     * 事件派发器
      */
     var EventEmitter = /** @class */ (function () {
         function EventEmitter() {
@@ -48,7 +61,6 @@ var feng3d;
             targets.push(this);
             e.handles = [];
             this.handleEvent(e);
-            this.handelEventBubbles(e);
             return true;
         };
         /**
@@ -57,9 +69,8 @@ var feng3d;
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        EventEmitter.prototype.emit = function (type, data, bubbles) {
-            if (bubbles === void 0) { bubbles = false; }
-            var e = { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
+        EventEmitter.prototype.emit = function (type, data) {
+            var e = { type: type, data: data, target: null, currentTarget: null, isStop: false, targets: [], handles: [] };
             return this.emitEvent(e);
         };
         /**
@@ -251,16 +262,58 @@ var feng3d;
                 }
             }
         };
-        EventEmitter.prototype.getBubbleTargets = function (target) {
-            return [target["parent"]];
+        EventEmitter.feventMap = new Map();
+        return EventEmitter;
+    }());
+    feng3d.EventEmitter = EventEmitter;
+})(feng3d || (feng3d = {}));
+var feng3d;
+(function (feng3d) {
+    /**
+     * 事件冒泡派发器，可处理冒泡事件。
+     */
+    var EventBubbleEmitter = /** @class */ (function (_super) {
+        __extends(EventBubbleEmitter, _super);
+        function EventBubbleEmitter() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        /**
+         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * @param type                      事件的类型。类型区分大小写。
+         * @param data                      事件携带的自定义数据。
+         * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+         */
+        EventBubbleEmitter.prototype.emit = function (type, data, bubbles) {
+            if (bubbles === void 0) { bubbles = false; }
+            var e = { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
+            return this.emitEvent(e);
+        };
+        /**
+         * 派发事件
+         *
+         * 当事件重复流向一个对象时将不会被处理。
+         *
+         * @param e   事件对象
+         * @returns 返回事件是否被该对象处理
+         */
+        EventBubbleEmitter.prototype.emitEvent = function (e) {
+            _super.prototype.emitEvent.call(this, e);
+            this.handelEventBubbles(e);
+            return true;
+        };
+        /**
+         * 获取冒泡对象，由子类实现。
+         */
+        EventBubbleEmitter.prototype.getBubbleTargets = function () {
+            return [];
         };
         /**
          * 处理事件冒泡
          * @param e 事件
          */
-        EventEmitter.prototype.handelEventBubbles = function (e) {
+        EventBubbleEmitter.prototype.handelEventBubbles = function (e) {
             if (e.bubbles && !e.isStopBubbles) {
-                var bubbleTargets = this.getBubbleTargets(this);
+                var bubbleTargets = this.getBubbleTargets();
                 for (var i = 0, n = bubbleTargets.length; i < n; i++) {
                     var bubbleTarget = bubbleTargets[i];
                     if (!e.isStop && bubbleTarget) {
@@ -269,9 +322,8 @@ var feng3d;
                 }
             }
         };
-        EventEmitter.feventMap = new Map();
-        return EventEmitter;
-    }());
-    feng3d.EventEmitter = EventEmitter;
+        return EventBubbleEmitter;
+    }(feng3d.EventEmitter));
+    feng3d.EventBubbleEmitter = EventBubbleEmitter;
 })(feng3d || (feng3d = {}));
 //# sourceMappingURL=index.js.map

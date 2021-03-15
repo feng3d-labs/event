@@ -58,8 +58,6 @@ namespace feng3d
 
             this.handleEvent(e);
 
-            this.handelEventBubbles(e);
-
             return true;
         }
 
@@ -69,9 +67,9 @@ namespace feng3d
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false)
+        emit<K extends keyof T & string>(type: K, data?: T[K])
         {
-            var e: Event<T[K]> = { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
+            var e: Event<T[K]> = { type: type, data: data, target: null, currentTarget: null, isStop: false, targets: [], handles: [] };
 
             return this.emitEvent(e);
         }
@@ -306,31 +304,6 @@ namespace feng3d
                 }
             }
         }
-
-        private getBubbleTargets(target: Object): EventEmitter[]
-        {
-            return [target["parent"]];
-        }
-
-        /**
-         * 处理事件冒泡
-         * @param e 事件
-         */
-        protected handelEventBubbles<K extends keyof T & string>(e: Event<T[K]>)
-        {
-            if (e.bubbles && !e.isStopBubbles)
-            {
-                var bubbleTargets = this.getBubbleTargets(this);
-                for (var i = 0, n = bubbleTargets.length; i < n; i++)
-                {
-                    var bubbleTarget = bubbleTargets[i];
-                    if (!e.isStop && bubbleTarget)
-                    {
-                        bubbleTarget.emitEvent(e);
-                    }
-                }
-            }
-        }
     }
 
     interface ObjectListener
@@ -355,19 +328,14 @@ namespace feng3d
         data: T;
 
         /**
-         * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
-         */
-        bubbles: boolean
-
-        /**
          * 事件目标。
          */
-        target: any;
+        target: EventEmitter;
 
         /**
          * 当前正在使用某个事件监听器处理 Event 对象的对象。
          */
-        currentTarget: any;
+        currentTarget: EventEmitter;
 
         /**
          * 是否停止处理事件监听器
@@ -375,14 +343,9 @@ namespace feng3d
         isStop: boolean
 
         /**
-         * 是否停止冒泡
-         */
-        isStopBubbles: boolean
-
-        /**
          * 事件流过的对象列表，事件路径
          */
-        targets: any[];
+        targets: EventEmitter[];
 
         /**
          * 处理列表

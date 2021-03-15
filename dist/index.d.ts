@@ -1,6 +1,6 @@
 declare namespace feng3d {
     /**
-     * 事件适配器
+     * 事件派发器
      */
     export class EventEmitter<T = any> {
         private static feventMap;
@@ -36,7 +36,7 @@ declare namespace feng3d {
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        emit<K extends keyof T & string>(type: K, data?: T[K], bubbles?: boolean): boolean;
+        emit<K extends keyof T & string>(type: K, data?: T[K]): boolean;
         /**
          * 检查 Event 对象是否为特定事件类型注册了任何侦听器.
          *
@@ -88,12 +88,6 @@ declare namespace feng3d {
          * @param e 事件
          */
         protected handleEvent<K extends keyof T & string>(e: Event<T[K]>): void;
-        private getBubbleTargets;
-        /**
-         * 处理事件冒泡
-         * @param e 事件
-         */
-        protected handelEventBubbles<K extends keyof T & string>(e: Event<T[K]>): void;
     }
     /**
      * 事件
@@ -108,29 +102,21 @@ declare namespace feng3d {
          */
         data: T;
         /**
-         * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
-         */
-        bubbles: boolean;
-        /**
          * 事件目标。
          */
-        target: any;
+        target: EventEmitter;
         /**
          * 当前正在使用某个事件监听器处理 Event 对象的对象。
          */
-        currentTarget: any;
+        currentTarget: EventEmitter;
         /**
          * 是否停止处理事件监听器
          */
         isStop: boolean;
         /**
-         * 是否停止冒泡
-         */
-        isStopBubbles: boolean;
-        /**
          * 事件流过的对象列表，事件路径
          */
-        targets: any[];
+        targets: EventEmitter[];
         /**
          * 处理列表
          */
@@ -158,5 +144,50 @@ declare namespace feng3d {
         once: boolean;
     }
     export {};
+}
+declare namespace feng3d {
+    /**
+     * 事件
+     */
+    interface Event<T> {
+        /**
+         * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+         */
+        bubbles?: boolean;
+        /**
+         * 是否停止冒泡
+         */
+        isStopBubbles?: boolean;
+    }
+    /**
+     * 事件冒泡派发器，可处理冒泡事件。
+     */
+    class EventBubbleEmitter<T = any> extends EventEmitter<T> {
+        /**
+         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * @param type                      事件的类型。类型区分大小写。
+         * @param data                      事件携带的自定义数据。
+         * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+         */
+        emit<K extends keyof T & string>(type: K, data?: T[K], bubbles?: boolean): boolean;
+        /**
+         * 派发事件
+         *
+         * 当事件重复流向一个对象时将不会被处理。
+         *
+         * @param e   事件对象
+         * @returns 返回事件是否被该对象处理
+         */
+        emitEvent<K extends keyof T & string>(e: Event<T[K]>): boolean;
+        /**
+         * 获取冒泡对象，由子类实现。
+         */
+        protected getBubbleTargets(): EventEmitter[];
+        /**
+         * 处理事件冒泡
+         * @param e 事件
+         */
+        protected handelEventBubbles<K extends keyof T & string>(e: Event<T[K]>): void;
+    }
 }
 //# sourceMappingURL=index.d.ts.map
