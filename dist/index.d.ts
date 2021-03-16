@@ -39,7 +39,7 @@ declare namespace feng3d {
         /**
          * Return the number of listeners listening to a given event.
          */
-        listenerCount<K extends keyof T & string>(type: K): any;
+        listenerCount<K extends keyof T & string>(type: K): number;
         /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。
@@ -58,7 +58,7 @@ declare namespace feng3d {
          */
         emitEvent<K extends keyof T & string>(e: Event<T[K]>): boolean;
         /**
-         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 Event 对象。
          * @param type                      事件的类型。类型区分大小写。
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
@@ -101,8 +101,9 @@ declare namespace feng3d {
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
+         * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
          */
-        onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number): this;
+        onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority?: number, once?: boolean): this;
         /**
          * 移除监听对象的任意事件。
          *
@@ -194,8 +195,6 @@ declare namespace feng3d {
      * 事件
      */
     class FEvent {
-        private feventMap;
-        private getBubbleTargets;
         /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
@@ -204,7 +203,7 @@ declare namespace feng3d {
         /**
          * Return the number of listeners listening to a given event.
          */
-        listenerCount(obj: any, type: string): any;
+        listenerCount(obj: any, type: string): number;
         /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。
@@ -221,14 +220,14 @@ declare namespace feng3d {
          * @param e                 事件对象。
          * @returns                 返回事件是否被该对象处理。
          */
-        dispatchEvent(obj: Object, e: Event<any>): boolean;
+        emitEvent(obj: Object, e: Event<any>): boolean;
         /**
-         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 IEvent 对象。
          * @param type                      事件的类型。类型区分大小写。
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        emit(obj: Object, type: string, data?: any, bubbles?: boolean): Event<any>;
+        emit(obj: Object, type: string, data?: any, bubbles?: boolean): boolean;
         /**
          * 检查 被监听对象 是否为特定事件类型注册了任何监听器.
          *
@@ -268,8 +267,9 @@ declare namespace feng3d {
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
+         * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
          */
-        onAny(obj: Object, listener: (event: Event<any>) => void, thisObject?: any, priority?: number): this;
+        onAny(obj: Object, listener: (event: Event<any>) => void, thisObject?: any, priority?: number, once?: boolean): this;
         /**
          * 移除监听对象的任意事件。
          *
@@ -286,16 +286,6 @@ declare namespace feng3d {
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
         makeEvent<T>(type: string, data: T, bubbles?: boolean): Event<T>;
-        /**
-         * 处理事件
-         * @param e 事件
-         */
-        protected handleEvent(obj: Object, e: Event<any>): void;
-        /**
-         * 处理事件冒泡
-         * @param e 事件
-         */
-        protected handelEventBubbles(obj: Object, e: Event<any>): void;
     }
 }
 //# sourceMappingURL=index.d.ts.map

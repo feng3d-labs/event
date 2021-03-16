@@ -95,7 +95,7 @@ var feng3d;
             return true;
         };
         /**
-         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 Event 对象。
          * @param type                      事件的类型。类型区分大小写。
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
@@ -200,9 +200,11 @@ var feng3d;
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
+         * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
          */
-        EventEmitter.prototype.onAny = function (listener, thisObject, priority) {
+        EventEmitter.prototype.onAny = function (listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
+            if (once === void 0) { once = false; }
             var objectListener = this[feng3d.__event__];
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
@@ -222,7 +224,7 @@ var feng3d;
                     break;
                 }
             }
-            listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: false });
+            listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: once });
             return this;
         };
         /**
@@ -321,32 +323,23 @@ var feng3d;
      */
     var FEvent = /** @class */ (function () {
         function FEvent() {
-            this.feventMap = new Map();
         }
-        FEvent.prototype.getBubbleTargets = function (target) {
-            return [target["parent"]];
-        };
         /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
          */
         FEvent.prototype.eventNames = function (obj) {
-            var names = Object.keys(this.feventMap.get(obj));
+            var _a;
+            var names = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.eventNames()) || [];
             return names;
         };
-        // /**
-        //  * Return the listeners registered for a given event.
-        //  */
-        // listeners(obj: any, type: string)
-        // {
-        //     return this.feventMap.get(obj)?.[type] || [];
-        // }
         /**
          * Return the number of listeners listening to a given event.
          */
         FEvent.prototype.listenerCount = function (obj, type) {
-            var _a, _b;
-            return ((_b = (_a = this.feventMap.get(obj)) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
+            var _a;
+            var count = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.listenerCount(type)) || 0;
+            return count;
         };
         /**
          * 监听一次事件后将会被移除
@@ -358,7 +351,7 @@ var feng3d;
         FEvent.prototype.once = function (obj, type, listener, thisObject, priority) {
             if (thisObject === void 0) { thisObject = null; }
             if (priority === void 0) { priority = 0; }
-            this.on(obj, type, listener, thisObject, priority, true);
+            feng3d.EventEmitter.getOrCreateEventEmitter(obj).once(type, listener, thisObject, priority);
             return this;
         };
         /**
@@ -369,27 +362,22 @@ var feng3d;
          * @param e                 事件对象。
          * @returns                 返回事件是否被该对象处理。
          */
-        FEvent.prototype.dispatchEvent = function (obj, e) {
-            var targets = e.targets = e.targets || [];
-            if (targets.indexOf(obj) != -1)
-                return false;
-            targets.push(obj);
-            e.handles = [];
-            this.handleEvent(obj, e);
-            this.handelEventBubbles(obj, e);
-            return true;
+        FEvent.prototype.emitEvent = function (obj, e) {
+            var _a;
+            var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.emitEvent(e)) || false;
+            return result;
         };
         /**
-         * 将事件调度到事件流中. 事件目标是对其调用 dispatchEvent() 方法的 IEvent 对象。
+         * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 IEvent 对象。
          * @param type                      事件的类型。类型区分大小写。
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
         FEvent.prototype.emit = function (obj, type, data, bubbles) {
+            var _a;
             if (bubbles === void 0) { bubbles = false; }
-            var e = this.makeEvent(type, data, bubbles);
-            this.dispatchEvent(obj, e);
-            return e;
+            var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.emit(type, data, bubbles)) || false;
+            return result;
         };
         /**
          * 检查 被监听对象 是否为特定事件类型注册了任何监听器.
@@ -399,7 +387,9 @@ var feng3d;
          * @return 			                如果指定类型的监听器已注册，则值为 true；否则，值为 false。
          */
         FEvent.prototype.has = function (obj, type) {
-            return this.listenerCount(obj, type) > 0;
+            var _a;
+            var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.has(type)) || false;
+            return result;
         };
         /**
          * 为监听对象新增指定类型的事件监听。
@@ -414,29 +404,7 @@ var feng3d;
         FEvent.prototype.on = function (obj, type, listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
             if (once === void 0) { once = false; }
-            if (listener == null)
-                return;
-            var objectListener = this.feventMap.get(obj);
-            if (!objectListener) {
-                objectListener = { __anyEventType__: [] };
-                this.feventMap.set(obj, objectListener);
-            }
-            thisObject = thisObject || obj;
-            var listeners = objectListener[type] = objectListener[type] || [];
-            for (var i = 0; i < listeners.length; i++) {
-                var element = listeners[i];
-                if (element.listener == listener && element.thisObject == thisObject) {
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-            for (var i = 0; i < listeners.length; i++) {
-                var element = listeners[i];
-                if (priority > element.priority) {
-                    break;
-                }
-            }
-            listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: once });
+            feng3d.EventEmitter.getOrCreateEventEmitter(obj).on(type, listener, thisObject, priority, once);
             return this;
         };
         /**
@@ -448,37 +416,16 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          */
         FEvent.prototype.off = function (obj, type, listener, thisObject) {
-            if (!type) {
-                this.feventMap.delete(obj);
-                return;
-            }
-            var objectListener = this.feventMap.get(obj);
-            if (!objectListener)
-                return;
-            if (!listener) {
-                delete objectListener[type];
-                return;
-            }
-            thisObject = thisObject || obj;
-            var listeners = objectListener[type];
-            if (listeners) {
-                for (var i = listeners.length - 1; i >= 0; i--) {
-                    var element = listeners[i];
-                    if (element.listener == listener && element.thisObject == thisObject) {
-                        listeners.splice(i, 1);
-                    }
-                }
-                if (listeners.length == 0) {
-                    delete objectListener[type];
-                }
-            }
+            var _a;
+            (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.off(type, listener, thisObject);
             return this;
         };
         /**
          * Remove all listeners, or those of the specified event.
          */
         FEvent.prototype.offAll = function (obj, type) {
-            this.off(obj, type);
+            var _a;
+            (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.offAll(type);
             return this;
         };
         /**
@@ -488,29 +435,12 @@ var feng3d;
          * @param listener                  处理事件的监听器函数。
          * @param thisObject                监听器的上下文。可选。
          * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
+         * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
          */
-        FEvent.prototype.onAny = function (obj, listener, thisObject, priority) {
+        FEvent.prototype.onAny = function (obj, listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
-            var objectListener = this.feventMap.get(obj);
-            if (!objectListener) {
-                objectListener = { __anyEventType__: [] };
-                this.feventMap.set(obj, objectListener);
-            }
-            var listeners = objectListener.__anyEventType__;
-            for (var i = 0; i < listeners.length; i++) {
-                var element = listeners[i];
-                if (element.listener == listener && element.thisObject == thisObject) {
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-            for (var i = 0; i < listeners.length; i++) {
-                var element = listeners[i];
-                if (priority > element.priority) {
-                    break;
-                }
-            }
-            listeners.splice(i, 0, { listener: listener, thisObject: thisObject, priority: priority, once: false });
+            if (once === void 0) { once = false; }
+            feng3d.EventEmitter.getOrCreateEventEmitter(obj).onAny(listener, thisObject, priority, once);
             return this;
         };
         /**
@@ -521,21 +451,8 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          */
         FEvent.prototype.offAny = function (obj, listener, thisObject) {
-            var objectListener = this.feventMap.get(obj);
-            if (!listener) {
-                if (objectListener)
-                    objectListener.__anyEventType__.length = 0;
-                return;
-            }
-            if (objectListener) {
-                var listeners = objectListener.__anyEventType__;
-                for (var i = listeners.length - 1; i >= 0; i--) {
-                    var element = listeners[i];
-                    if (element.listener == listener && element.thisObject == thisObject) {
-                        listeners.splice(i, 1);
-                    }
-                }
-            }
+            var _a;
+            (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.onAny(listener, thisObject);
             return this;
         };
         /**
@@ -548,71 +465,6 @@ var feng3d;
         FEvent.prototype.makeEvent = function (type, data, bubbles) {
             if (bubbles === void 0) { bubbles = false; }
             return { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
-        };
-        /**
-         * 处理事件
-         * @param e 事件
-         */
-        FEvent.prototype.handleEvent = function (obj, e) {
-            //设置目标
-            e.target || (e.target = obj);
-            try {
-                //使用 try 处理 MouseEvent 等无法更改currentTarget的对象
-                e.currentTarget = obj;
-            }
-            catch (error) { }
-            //
-            var objectListener = this.feventMap.get(obj);
-            if (!objectListener)
-                return;
-            var listeners = objectListener[e.type];
-            if (listeners) {
-                //遍历调用事件回调函数
-                var listeners0 = listeners.concat();
-                for (var i = 0; i < listeners0.length && !e.isStop; i++) {
-                    listeners0[i].listener.call(listeners0[i].thisObject, e); //此处可能会删除当前事件，所以上面必须拷贝
-                    e.handles.push(listeners0[i]);
-                }
-                for (var i = listeners.length - 1; i >= 0; i--) {
-                    if (listeners[i].once)
-                        listeners.splice(i, 1);
-                }
-                if (listeners.length == 0)
-                    delete objectListener[e.type];
-            }
-            // Any_EVENT_Type
-            listeners = objectListener.__anyEventType__;
-            if (listeners) {
-                //遍历调用事件回调函数
-                var listeners0 = listeners.concat();
-                for (var i = 0; i < listeners0.length && !e.isStop; i++) {
-                    listeners0[i].listener.call(listeners0[i].thisObject, e); //此处可能会删除当前事件，所以上面必须拷贝
-                }
-                for (var i = listeners.length - 1; i >= 0; i--) {
-                    if (listeners[i].once)
-                        listeners.splice(i, 1);
-                }
-            }
-        };
-        /**
-         * 处理事件冒泡
-         * @param e 事件
-         */
-        FEvent.prototype.handelEventBubbles = function (obj, e) {
-            if (e.bubbles && !e.isStopBubbles) {
-                var bubbleTargets = this.getBubbleTargets(obj);
-                for (var i = 0, n = bubbleTargets.length; i < n; i++) {
-                    var bubbleTarget = bubbleTargets[i];
-                    if (!e.isStop && bubbleTarget) {
-                        if (bubbleTarget.dispatchEvent) {
-                            bubbleTarget.dispatchEvent(e);
-                        }
-                        else {
-                            this.dispatchEvent(bubbleTarget, e);
-                        }
-                    }
-                }
-            }
         };
         return FEvent;
     }());
