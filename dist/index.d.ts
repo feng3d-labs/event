@@ -3,8 +3,8 @@ declare namespace feng3d {
      * 事件派发器
      */
     export class EventEmitter<T = any> {
+        static readonly __events__ = "__events__";
         private static targetMap;
-        private __events__;
         constructor(target?: any);
         /**
          * Return an array listing the events for which the emitter has registered
@@ -14,7 +14,7 @@ declare namespace feng3d {
         /**
          * Return the number of listeners listening to a given event.
          */
-        listenerCount<K extends keyof T & string>(type: K): number;
+        listenerCount<K extends keyof T & string>(type: K): any;
         /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。

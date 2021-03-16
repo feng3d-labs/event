@@ -16,7 +16,7 @@ var feng3d;
          * listeners.
          */
         EventEmitter.prototype.eventNames = function () {
-            var names = Object.keys(this.__events__);
+            var names = Object.keys(this[EventEmitter.__events__]);
             return names;
         };
         /**
@@ -24,7 +24,7 @@ var feng3d;
          */
         EventEmitter.prototype.listenerCount = function (type) {
             var _a, _b;
-            return ((_b = (_a = this.__events__) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
+            return ((_b = (_a = this[EventEmitter.__events__]) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
         };
         /**
          * 监听一次事件后将会被移除
@@ -90,10 +90,10 @@ var feng3d;
             if (once === void 0) { once = false; }
             if (listener == null)
                 return;
-            var objectListener = this.__events__;
+            var objectListener = this[EventEmitter.__events__];
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                this.__events__ = objectListener;
+                this[EventEmitter.__events__] = objectListener;
             }
             thisObject = thisObject || this;
             var listeners = objectListener[type] = objectListener[type] || [];
@@ -122,10 +122,10 @@ var feng3d;
          */
         EventEmitter.prototype.off = function (type, listener, thisObject) {
             if (!type) {
-                this.__events__ = undefined;
+                this[EventEmitter.__events__] = undefined;
                 return;
             }
-            var objectListener = this.__events__;
+            var objectListener = this[EventEmitter.__events__];
             if (!objectListener)
                 return;
             if (!listener) {
@@ -165,10 +165,10 @@ var feng3d;
          */
         EventEmitter.prototype.onAny = function (listener, thisObject, priority) {
             if (priority === void 0) { priority = 0; }
-            var objectListener = this.__events__;
+            var objectListener = this[EventEmitter.__events__];
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                this.__events__ = objectListener;
+                this[EventEmitter.__events__] = objectListener;
             }
             var listeners = objectListener.__anyEventType__;
             for (var i = 0; i < listeners.length; i++) {
@@ -194,7 +194,7 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          */
         EventEmitter.prototype.offAny = function (listener, thisObject) {
-            var objectListener = this.__events__;
+            var objectListener = this[EventEmitter.__events__];
             if (!listener) {
                 if (objectListener)
                     objectListener.__anyEventType__.length = 0;
@@ -224,7 +224,7 @@ var feng3d;
             }
             catch (error) { }
             //
-            var objectListener = this.__events__;
+            var objectListener = this[EventEmitter.__events__];
             if (!objectListener)
                 return;
             var listeners = objectListener[e.type];
@@ -277,6 +277,7 @@ var feng3d;
                 }
             }
         };
+        EventEmitter.__events__ = "__events__";
         EventEmitter.targetMap = new Map();
         return EventEmitter;
     }());
