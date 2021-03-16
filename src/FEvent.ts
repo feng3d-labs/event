@@ -7,7 +7,7 @@ namespace feng3d
     export var event: FEvent;
 
     /**
-     * 事件
+     * 可针对（除undefined、Symbol外）的任意对象（null, 0, 1, true, false, "1", {}）派发事件
      */
     export class FEvent
     {
@@ -17,6 +17,7 @@ namespace feng3d
          */
         eventNames(obj: any)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             const names = EventEmitter.getEventEmitter(obj)?.eventNames() || [];
             return names;
         }
@@ -26,6 +27,7 @@ namespace feng3d
          */
         listenerCount(obj: any, type: string)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             const count = EventEmitter.getEventEmitter(obj)?.listenerCount(type) || 0;
             return count;
         }
@@ -39,6 +41,7 @@ namespace feng3d
          */
         once(obj: Object, type: string, listener: (event: Event<any>) => void, thisObject = null, priority = 0)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getOrCreateEventEmitter(obj).once(type, listener, thisObject, priority);
             return this;
         }
@@ -53,6 +56,7 @@ namespace feng3d
          */
         emitEvent(obj: Object, e: Event<any>)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             var result = EventEmitter.getOrCreateEventEmitter(obj).emitEvent(e) || false;
             return result;
         }
@@ -65,6 +69,7 @@ namespace feng3d
          */
         emit(obj: Object, type: string, data?: any, bubbles = false)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             var result = EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles) || false;
             return result;
         }
@@ -78,6 +83,7 @@ namespace feng3d
          */
         has(obj: Object, type: string)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             var result = EventEmitter.getEventEmitter(obj)?.has(type) || false;
             return result;
         }
@@ -94,6 +100,7 @@ namespace feng3d
          */
         on(obj: Object, type: string, listener: (event: Event<any>) => any, thisObject?: any, priority = 0, once = false)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getOrCreateEventEmitter(obj).on(type, listener, thisObject, priority, once);
             return this;
         }
@@ -108,6 +115,7 @@ namespace feng3d
          */
         off(obj: Object, type?: string, listener?: (event: Event<any>) => any, thisObject?: any)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getEventEmitter(obj)?.off(type, listener, thisObject);
             return this;
         }
@@ -117,6 +125,7 @@ namespace feng3d
          */
         offAll(obj: any, type?: string)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getEventEmitter(obj)?.offAll(type);
             return this;
         }
@@ -132,6 +141,7 @@ namespace feng3d
          */
         onAny(obj: Object, listener: (event: Event<any>) => void, thisObject?: any, priority = 0, once = false)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getOrCreateEventEmitter(obj).onAny(listener, thisObject, priority, once);
             return this;
         }
@@ -145,6 +155,7 @@ namespace feng3d
          */
         offAny(obj: Object, listener?: (event: any) => void, thisObject?: any)
         {
+            console.assert(obj !== undefined, `被监听对象无法为undefined！`)
             EventEmitter.getEventEmitter(obj)?.offAny(listener, thisObject);
             return this;
         }

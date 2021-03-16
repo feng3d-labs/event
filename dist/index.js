@@ -319,7 +319,7 @@ var feng3d;
 var feng3d;
 (function (feng3d) {
     /**
-     * 事件
+     * 可针对（除undefined、Symbol外）的任意对象（null, 0, 1, true, false, "1", {}）派发事件
      */
     var FEvent = /** @class */ (function () {
         function FEvent() {
@@ -330,6 +330,7 @@ var feng3d;
          */
         FEvent.prototype.eventNames = function (obj) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             var names = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.eventNames()) || [];
             return names;
         };
@@ -338,6 +339,7 @@ var feng3d;
          */
         FEvent.prototype.listenerCount = function (obj, type) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             var count = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.listenerCount(type)) || 0;
             return count;
         };
@@ -351,6 +353,7 @@ var feng3d;
         FEvent.prototype.once = function (obj, type, listener, thisObject, priority) {
             if (thisObject === void 0) { thisObject = null; }
             if (priority === void 0) { priority = 0; }
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             feng3d.EventEmitter.getOrCreateEventEmitter(obj).once(type, listener, thisObject, priority);
             return this;
         };
@@ -363,6 +366,7 @@ var feng3d;
          * @returns                 返回事件是否被该对象处理。
          */
         FEvent.prototype.emitEvent = function (obj, e) {
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             var result = feng3d.EventEmitter.getOrCreateEventEmitter(obj).emitEvent(e) || false;
             return result;
         };
@@ -374,6 +378,7 @@ var feng3d;
          */
         FEvent.prototype.emit = function (obj, type, data, bubbles) {
             if (bubbles === void 0) { bubbles = false; }
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             var result = feng3d.EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles) || false;
             return result;
         };
@@ -386,6 +391,7 @@ var feng3d;
          */
         FEvent.prototype.has = function (obj, type) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.has(type)) || false;
             return result;
         };
@@ -402,6 +408,7 @@ var feng3d;
         FEvent.prototype.on = function (obj, type, listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
             if (once === void 0) { once = false; }
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             feng3d.EventEmitter.getOrCreateEventEmitter(obj).on(type, listener, thisObject, priority, once);
             return this;
         };
@@ -415,6 +422,7 @@ var feng3d;
          */
         FEvent.prototype.off = function (obj, type, listener, thisObject) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.off(type, listener, thisObject);
             return this;
         };
@@ -423,6 +431,7 @@ var feng3d;
          */
         FEvent.prototype.offAll = function (obj, type) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.offAll(type);
             return this;
         };
@@ -438,6 +447,7 @@ var feng3d;
         FEvent.prototype.onAny = function (obj, listener, thisObject, priority, once) {
             if (priority === void 0) { priority = 0; }
             if (once === void 0) { once = false; }
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             feng3d.EventEmitter.getOrCreateEventEmitter(obj).onAny(listener, thisObject, priority, once);
             return this;
         };
@@ -450,6 +460,7 @@ var feng3d;
          */
         FEvent.prototype.offAny = function (obj, listener, thisObject) {
             var _a;
+            console.assert(obj !== undefined, "\u88AB\u76D1\u542C\u5BF9\u8C61\u65E0\u6CD5\u4E3Aundefined\uFF01");
             (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.offAny(listener, thisObject);
             return this;
         };
