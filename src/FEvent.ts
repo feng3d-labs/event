@@ -53,7 +53,7 @@ namespace feng3d
          */
         emitEvent(obj: Object, e: Event<any>)
         {
-            var result = EventEmitter.getEventEmitter(obj)?.emitEvent(e) || false;
+            var result = EventEmitter.getOrCreateEventEmitter(obj).emitEvent(e) || false;
             return result;
         }
 
@@ -65,7 +65,7 @@ namespace feng3d
          */
         emit(obj: Object, type: string, data?: any, bubbles = false)
         {
-            var result = EventEmitter.getEventEmitter(obj)?.emit(type, data, bubbles) || false;
+            var result = EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles) || false;
             return result;
         }
 
@@ -145,7 +145,7 @@ namespace feng3d
          */
         offAny(obj: Object, listener?: (event: any) => void, thisObject?: any)
         {
-            EventEmitter.getEventEmitter(obj)?.onAny(listener, thisObject);
+            EventEmitter.getEventEmitter(obj)?.offAny(listener, thisObject);
             return this;
         }
 

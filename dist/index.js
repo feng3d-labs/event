@@ -15,7 +15,7 @@ var feng3d;
      *
      * var bubbleObject: { __event_bubble_function__: () => any[] }
      */
-    feng3d.__event_bubble_function__ = "__event_emitter_target__";
+    feng3d.__event_bubble_function__ = "__event_bubble_function__";
     /**
      * 事件派发器
      */
@@ -301,7 +301,7 @@ var feng3d;
             if (e.bubbles && !e.isStopBubbles) {
                 if (typeof ((_a = this[feng3d.__event_emitter_target__]) === null || _a === void 0 ? void 0 : _a[feng3d.__event_bubble_function__]) === "function") {
                     var bubbleTargets = this[feng3d.__event_emitter_target__][feng3d.__event_bubble_function__]();
-                    bubbleTargets = bubbleTargets.map(function (v) { return EventEmitter.getEventEmitter(v); }).filter(function (v) { return !!v; });
+                    bubbleTargets = bubbleTargets.map(function (v) { return EventEmitter.getOrCreateEventEmitter(v); });
                     for (var i = 0, n = bubbleTargets.length; i < n; i++) {
                         var bubbleTarget = bubbleTargets[i];
                         if (!e.isStop) {
@@ -363,8 +363,7 @@ var feng3d;
          * @returns                 返回事件是否被该对象处理。
          */
         FEvent.prototype.emitEvent = function (obj, e) {
-            var _a;
-            var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.emitEvent(e)) || false;
+            var result = feng3d.EventEmitter.getOrCreateEventEmitter(obj).emitEvent(e) || false;
             return result;
         };
         /**
@@ -374,9 +373,8 @@ var feng3d;
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
         FEvent.prototype.emit = function (obj, type, data, bubbles) {
-            var _a;
             if (bubbles === void 0) { bubbles = false; }
-            var result = ((_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.emit(type, data, bubbles)) || false;
+            var result = feng3d.EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles) || false;
             return result;
         };
         /**
@@ -452,7 +450,7 @@ var feng3d;
          */
         FEvent.prototype.offAny = function (obj, listener, thisObject) {
             var _a;
-            (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.onAny(listener, thisObject);
+            (_a = feng3d.EventEmitter.getEventEmitter(obj)) === null || _a === void 0 ? void 0 : _a.offAny(listener, thisObject);
             return this;
         };
         /**

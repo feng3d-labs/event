@@ -14,7 +14,7 @@ declare namespace feng3d {
      *
      * var bubbleObject: { __event_bubble_function__: () => any[] }
      */
-    export const __event_bubble_function__ = "__event_emitter_target__";
+    export const __event_bubble_function__ = "__event_bubble_function__";
     /**
      * 事件派发器
      */

@@ -17,7 +17,7 @@ namespace feng3d
      * 
      * var bubbleObject: { __event_bubble_function__: () => any[] }
      */
-    export const __event_bubble_function__ = "__event_emitter_target__";
+    export const __event_bubble_function__ = "__event_bubble_function__";
 
     /**
      * 事件派发器
@@ -370,7 +370,7 @@ namespace feng3d
                 if (typeof this[__event_emitter_target__]?.[__event_bubble_function__] === "function")
                 {
                     var bubbleTargets: EventEmitter[] = this[__event_emitter_target__][__event_bubble_function__]();
-                    bubbleTargets = bubbleTargets.map(v => EventEmitter.getEventEmitter(v)).filter(v => !!v);
+                    bubbleTargets = bubbleTargets.map(v => EventEmitter.getOrCreateEventEmitter(v));
                     for (var i = 0, n = bubbleTargets.length; i < n; i++)
                     {
                         var bubbleTarget = bubbleTargets[i];
