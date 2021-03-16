@@ -2,16 +2,34 @@ declare namespace feng3d {
     /**
      * 事件属性名称常量
      */
-    export const __events__ = "__events__";
+    export const __event__ = "__event__";
     /**
      * 事件派发器代理的对象
      */
     export const __event_emitter_target__ = "__event_emitter_target__";
     /**
+     * 事件冒泡函数名称常量，冒泡的对象需要定义该名称的函数。
+     *
+     * function __event_bubble_function__(): any[];
+     *
+     * var bubbleObject: { __event_bubble_function__: () => any[] }
+     */
+    export const __event_bubble_function__ = "__event_emitter_target__";
+    /**
      * 事件派发器
      */
     export class EventEmitter<T = any> {
         private static targetMap;
+        /**
+         * 获取事件派发器
+         * @param target
+         */
+        static getEventEmitter(target: any): EventEmitter<any>;
+        /**
+         * 获取事件派发器，当没有找到对应派发器时，返回新建的事件派发器。
+         * @param target
+         */
+        static getOrCreateEventEmitter(target: any): EventEmitter<any>;
         constructor(target?: any);
         /**
          * Return an array listing the events for which the emitter has registered
@@ -97,10 +115,6 @@ declare namespace feng3d {
          * @param e 事件
          */
         protected handleEvent<K extends keyof T & string>(e: Event<T[K]>): void;
-        /**
-         * 获取冒泡对象，由子类实现。
-         */
-        protected getBubbleTargets(): EventEmitter[];
         /**
          * 处理事件冒泡
          * @param e 事件

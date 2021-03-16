@@ -3,11 +3,19 @@ var feng3d;
     /**
      * 事件属性名称常量
      */
-    feng3d.__events__ = "__events__";
+    feng3d.__event__ = "__event__";
     /**
      * 事件派发器代理的对象
      */
     feng3d.__event_emitter_target__ = "__event_emitter_target__";
+    /**
+     * 事件冒泡函数名称常量，冒泡的对象需要定义该名称的函数。
+     *
+     * function __event_bubble_function__(): any[];
+     *
+     * var bubbleObject: { __event_bubble_function__: () => any[] }
+     */
+    feng3d.__event_bubble_function__ = "__event_emitter_target__";
     /**
      * 事件派发器
      */
@@ -21,11 +29,32 @@ var feng3d;
             this[feng3d.__event_emitter_target__] = target;
         }
         /**
+         * 获取事件派发器
+         * @param target
+         */
+        EventEmitter.getEventEmitter = function (target) {
+            if (target instanceof EventEmitter) {
+                return target;
+            }
+            return this.targetMap.get(target);
+        };
+        /**
+         * 获取事件派发器，当没有找到对应派发器时，返回新建的事件派发器。
+         * @param target
+         */
+        EventEmitter.getOrCreateEventEmitter = function (target) {
+            var eventEmitter = this.getEventEmitter(target);
+            if (!eventEmitter) {
+                eventEmitter = new EventEmitter(target);
+            }
+            return eventEmitter;
+        };
+        /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
          */
         EventEmitter.prototype.eventNames = function () {
-            var names = Object.keys(this[feng3d.__events__]);
+            var names = Object.keys(this[feng3d.__event__]);
             return names;
         };
         /**
@@ -33,7 +62,7 @@ var feng3d;
          */
         EventEmitter.prototype.listenerCount = function (type) {
             var _a, _b;
-            return ((_b = (_a = this[feng3d.__events__]) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
+            return ((_b = (_a = this[feng3d.__event__]) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
         };
         /**
          * 监听一次事件后将会被移除
@@ -99,10 +128,10 @@ var feng3d;
             if (once === void 0) { once = false; }
             if (listener == null)
                 return;
-            var objectListener = this[feng3d.__events__];
+            var objectListener = this[feng3d.__event__];
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                this[feng3d.__events__] = objectListener;
+                this[feng3d.__event__] = objectListener;
             }
             thisObject = thisObject || this;
             var listeners = objectListener[type] = objectListener[type] || [];
@@ -131,10 +160,10 @@ var feng3d;
          */
         EventEmitter.prototype.off = function (type, listener, thisObject) {
             if (!type) {
-                this[feng3d.__events__] = undefined;
+                this[feng3d.__event__] = undefined;
                 return;
             }
-            var objectListener = this[feng3d.__events__];
+            var objectListener = this[feng3d.__event__];
             if (!objectListener)
                 return;
             if (!listener) {
@@ -174,10 +203,10 @@ var feng3d;
          */
         EventEmitter.prototype.onAny = function (listener, thisObject, priority) {
             if (priority === void 0) { priority = 0; }
-            var objectListener = this[feng3d.__events__];
+            var objectListener = this[feng3d.__event__];
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                this[feng3d.__events__] = objectListener;
+                this[feng3d.__event__] = objectListener;
             }
             var listeners = objectListener.__anyEventType__;
             for (var i = 0; i < listeners.length; i++) {
@@ -203,7 +232,7 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          */
         EventEmitter.prototype.offAny = function (listener, thisObject) {
-            var objectListener = this[feng3d.__events__];
+            var objectListener = this[feng3d.__event__];
             if (!listener) {
                 if (objectListener)
                     objectListener.__anyEventType__.length = 0;
@@ -229,7 +258,7 @@ var feng3d;
             e.target = e.target || this[feng3d.__event_emitter_target__];
             e.currentTarget = this[feng3d.__event_emitter_target__];
             //
-            var objectListener = this[feng3d.__events__];
+            var objectListener = this[feng3d.__event__];
             if (!objectListener)
                 return;
             var listeners = objectListener[e.type];
@@ -262,22 +291,20 @@ var feng3d;
             }
         };
         /**
-         * 获取冒泡对象，由子类实现。
-         */
-        EventEmitter.prototype.getBubbleTargets = function () {
-            return [];
-        };
-        /**
          * 处理事件冒泡
          * @param e 事件
          */
         EventEmitter.prototype.handelEventBubbles = function (e) {
+            var _a;
             if (e.bubbles && !e.isStopBubbles) {
-                var bubbleTargets = this.getBubbleTargets();
-                for (var i = 0, n = bubbleTargets.length; i < n; i++) {
-                    var bubbleTarget = bubbleTargets[i];
-                    if (!e.isStop && bubbleTarget) {
-                        bubbleTarget.emitEvent(e);
+                if (typeof ((_a = this[feng3d.__event_emitter_target__]) === null || _a === void 0 ? void 0 : _a[feng3d.__event_bubble_function__]) === "function") {
+                    var bubbleTargets = this[feng3d.__event_emitter_target__][feng3d.__event_bubble_function__]();
+                    bubbleTargets = bubbleTargets.map(function (v) { return EventEmitter.getEventEmitter(v); }).filter(function (v) { return !!v; });
+                    for (var i = 0, n = bubbleTargets.length; i < n; i++) {
+                        var bubbleTarget = bubbleTargets[i];
+                        if (!e.isStop) {
+                            bubbleTarget.emitEvent(e);
+                        }
                     }
                 }
             }
