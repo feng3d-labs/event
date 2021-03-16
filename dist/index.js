@@ -21,15 +21,15 @@ var feng3d;
             if (target === undefined) {
                 target = this;
             }
-            console.assert(!EventEmitter.targetMap[target], "\u540C\u4E00\u4E2A " + target + " \u5BF9\u8C61\u65E0\u6CD5\u5BF9\u5E94\u4E24\u4E2A EventEmitter\uFF01");
-            EventEmitter.targetMap[target] = this;
+            console.assert(!EventEmitter.targetMap.has(target), "\u540C\u4E00\u4E2A " + target + " \u5BF9\u8C61\u65E0\u6CD5\u5BF9\u5E94\u4E24\u4E2A EventEmitter\uFF01");
+            EventEmitter.targetMap.set(target, this);
         }
         /**
          * Return an array listing the events for which the emitter has registered
          * listeners.
          */
         EventEmitter.prototype.eventNames = function () {
-            var names = Object.keys(EventEmitter.feventMap.get(this));
+            var names = Object.keys(this.__events__);
             return names;
         };
         /**
@@ -37,7 +37,7 @@ var feng3d;
          */
         EventEmitter.prototype.listenerCount = function (type) {
             var _a, _b;
-            return ((_b = (_a = EventEmitter.feventMap.get(this)) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
+            return ((_b = (_a = this.__events__) === null || _a === void 0 ? void 0 : _a[type]) === null || _b === void 0 ? void 0 : _b.length) || 0;
         };
         /**
          * 监听一次事件后将会被移除
@@ -101,10 +101,10 @@ var feng3d;
             if (once === void 0) { once = false; }
             if (listener == null)
                 return;
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                EventEmitter.feventMap.set(this, objectListener);
+                this.__events__ = objectListener;
             }
             thisObject = thisObject || this;
             var listeners = objectListener[type] = objectListener[type] || [];
@@ -133,10 +133,10 @@ var feng3d;
          */
         EventEmitter.prototype.off = function (type, listener, thisObject) {
             if (!type) {
-                EventEmitter.feventMap.delete(this);
+                this.__events__ = undefined;
                 return;
             }
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener)
                 return;
             if (!listener) {
@@ -176,10 +176,10 @@ var feng3d;
          */
         EventEmitter.prototype.onAny = function (listener, thisObject, priority) {
             if (priority === void 0) { priority = 0; }
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener) {
                 objectListener = { __anyEventType__: [] };
-                EventEmitter.feventMap.set(this, objectListener);
+                this.__events__ = objectListener;
             }
             var listeners = objectListener.__anyEventType__;
             for (var i = 0; i < listeners.length; i++) {
@@ -205,7 +205,7 @@ var feng3d;
          * @param thisObject                监听器的上下文。可选。
          */
         EventEmitter.prototype.offAny = function (listener, thisObject) {
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!listener) {
                 if (objectListener)
                     objectListener.__anyEventType__.length = 0;
@@ -235,7 +235,7 @@ var feng3d;
             }
             catch (error) { }
             //
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener)
                 return;
             var listeners = objectListener[e.type];
@@ -267,7 +267,6 @@ var feng3d;
                 }
             }
         };
-        EventEmitter.feventMap = new Map();
         EventEmitter.targetMap = new Map();
         return EventEmitter;
     }());
@@ -405,7 +404,7 @@ var feng3d;
          */
         FEvent.prototype.emit = function (obj, type, data, bubbles) {
             if (bubbles === void 0) { bubbles = false; }
-            var e = this.makeEvent(type, data);
+            var e = this.makeEvent(type, data, bubbles);
             this.dispatchEvent(obj, e);
             return e;
         };
@@ -563,8 +562,9 @@ var feng3d;
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        FEvent.prototype.makeEvent = function (type, data) {
-            return { type: type, data: data, target: null, currentTarget: null, targets: [], isStop: false, handles: [] };
+        FEvent.prototype.makeEvent = function (type, data, bubbles) {
+            if (bubbles === void 0) { bubbles = false; }
+            return { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
         };
         /**
          * 处理事件

@@ -3,8 +3,8 @@ declare namespace feng3d {
      * 事件派发器
      */
     export class EventEmitter<T = any> {
-        private static feventMap;
         private static targetMap;
+        private __events__;
         constructor(target?: any);
         /**
          * Return an array listing the events for which the emitter has registered
@@ -106,11 +106,11 @@ declare namespace feng3d {
         /**
          * 事件目标。
          */
-        target: EventEmitter;
+        target: any;
         /**
          * 当前正在使用某个事件监听器处理 Event 对象的对象。
          */
-        currentTarget: EventEmitter;
+        currentTarget: any;
         /**
          * 是否停止处理事件监听器
          */
@@ -118,7 +118,7 @@ declare namespace feng3d {
         /**
          * 事件流过的对象列表，事件路径
          */
-        targets: EventEmitter[];
+        targets: any[];
         /**
          * 处理列表
          */
@@ -211,7 +211,7 @@ declare namespace feng3d {
         /**
          * Return the number of listeners listening to a given event.
          */
-        listenerCount(obj: any, type: string): number;
+        listenerCount(obj: any, type: string): any;
         /**
          * 监听一次事件后将会被移除
          * @param type						事件的类型。
@@ -292,7 +292,7 @@ declare namespace feng3d {
          * @param data                      事件携带的自定义数据。
          * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        makeEvent<T>(type: string, data: T): Event<T>;
+        makeEvent<T>(type: string, data: T, bubbles?: boolean): Event<T>;
         /**
          * 处理事件
          * @param e 事件

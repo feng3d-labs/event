@@ -6,8 +6,9 @@ namespace feng3d
      */
     export class EventEmitter<T = any>
     {
-        private static feventMap = new Map<any, ObjectListener>();
         private static targetMap = new Map<any, EventEmitter>();
+
+        private __events__: ObjectListener;
 
         constructor(target?: any)
         {
@@ -15,8 +16,8 @@ namespace feng3d
             {
                 target = this;
             }
-            console.assert(!EventEmitter.targetMap[target], `同一个 ${target} 对象无法对应两个 EventEmitter！`);
-            EventEmitter.targetMap[target] = this;
+            console.assert(!EventEmitter.targetMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
+            EventEmitter.targetMap.set(target, this);
         }
 
         /**
@@ -25,7 +26,7 @@ namespace feng3d
          */
         eventNames()
         {
-            const names = Object.keys(EventEmitter.feventMap.get(this));
+            const names = Object.keys(this.__events__);
             return names;
         }
 
@@ -34,7 +35,7 @@ namespace feng3d
          */
         listenerCount<K extends keyof T & string>(type: K)
         {
-            return EventEmitter.feventMap.get(this)?.[type]?.length || 0;
+            return this.__events__?.[type]?.length || 0;
         }
 
         /**
@@ -109,11 +110,11 @@ namespace feng3d
         {
             if (listener == null) return;
 
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] }
-                EventEmitter.feventMap.set(this, objectListener)
+                this.__events__ = objectListener;
             }
 
             thisObject = thisObject || this;
@@ -150,11 +151,11 @@ namespace feng3d
         {
             if (!type)
             {
-                EventEmitter.feventMap.delete(this)
+                this.__events__ = undefined;
                 return;
             }
 
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener) return;
 
             if (!listener)
@@ -204,11 +205,11 @@ namespace feng3d
          */
         onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0)
         {
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] };
-                EventEmitter.feventMap.set(this, objectListener)
+                this.__events__ = objectListener
             }
 
             var listeners: ListenerVO[] = objectListener.__anyEventType__;
@@ -241,7 +242,7 @@ namespace feng3d
          */
         offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
         {
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!listener)
             {
                 if (objectListener)
@@ -277,7 +278,7 @@ namespace feng3d
                 e.currentTarget = this;
             } catch (error) { }
             //
-            var objectListener = EventEmitter.feventMap.get(this);
+            var objectListener = this.__events__;
             if (!objectListener) return;
 
             var listeners: ListenerVO[] = objectListener[e.type];
@@ -341,12 +342,12 @@ namespace feng3d
         /**
          * 事件目标。
          */
-        target: EventEmitter;
+        target: any;
 
         /**
          * 当前正在使用某个事件监听器处理 Event 对象的对象。
          */
-        currentTarget: EventEmitter;
+        currentTarget: any;
 
         /**
          * 是否停止处理事件监听器
@@ -356,7 +357,7 @@ namespace feng3d
         /**
          * 事件流过的对象列表，事件路径
          */
-        targets: EventEmitter[];
+        targets: any[];
 
         /**
          * 处理列表

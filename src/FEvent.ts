@@ -11,7 +11,7 @@ namespace feng3d
      */
     export class FEvent
     {
-        private feventMap = new Map<any, ObjectListener>();
+        private feventMap = new Map<any, any>();
 
         private getBubbleTargets(target: Object)
         {
@@ -68,9 +68,9 @@ namespace feng3d
         dispatchEvent(obj: Object, e: Event<any>)
         {
             var targets = e.targets = e.targets || [];
-            if (targets.indexOf(<any>obj) != -1)
+            if (targets.indexOf(obj) != -1)
                 return false;
-            targets.push(<any>obj);
+            targets.push(obj);
 
             e.handles = [];
 
@@ -89,7 +89,7 @@ namespace feng3d
          */
         emit(obj: Object, type: string, data?: any, bubbles = false)
         {
-            var e: Event<any> = this.makeEvent(type, data);
+            var e: Event<any> = this.makeEvent(type, data, bubbles);
             this.dispatchEvent(obj, e);
             return e;
         }
@@ -128,7 +128,7 @@ namespace feng3d
             }
 
             thisObject = thisObject || obj;
-            var listeners: ListenerVO[] = objectListener[type] = objectListener[type] || [];
+            var listeners = objectListener[type] = objectListener[type] || [];
             for (var i = 0; i < listeners.length; i++)
             {
                 var element = listeners[i];
@@ -222,7 +222,7 @@ namespace feng3d
                 this.feventMap.set(obj, objectListener)
             }
 
-            var listeners: ListenerVO[] = objectListener.__anyEventType__;
+            var listeners = objectListener.__anyEventType__;
             for (var i = 0; i < listeners.length; i++)
             {
                 var element = listeners[i];
@@ -282,9 +282,9 @@ namespace feng3d
 		 * @param data                      事件携带的自定义数据。
 		 * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
          */
-        makeEvent<T>(type: string, data: T): Event<T>
+        makeEvent<T>(type: string, data: T, bubbles = false): Event<T>
         {
-            return { type: type, data: data, target: null, currentTarget: null, targets: [], isStop: false, handles: [] };
+            return { type: type, data: data, bubbles: bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
         }
 
         /**
@@ -304,7 +304,7 @@ namespace feng3d
             var objectListener = this.feventMap.get(obj);
             if (!objectListener) return;
 
-            var listeners: ListenerVO[] = objectListener[e.type];
+            var listeners = objectListener[e.type];
             if (listeners)
             {
                 //遍历调用事件回调函数
@@ -369,33 +369,4 @@ namespace feng3d
     }
 
     event = new FEvent();
-
-    interface ObjectListener
-    {
-        [type: string]: ListenerVO[];
-        __anyEventType__: ListenerVO[];
-    }
-
-    /**
-     * 监听数据
-     */
-    interface ListenerVO
-    {
-        /**
-         * 监听函数
-         */
-        listener: (event: Event<any>) => void;
-        /**
-         * 监听函数作用域
-         */
-        thisObject: any;
-        /**
-         * 优先级
-         */
-        priority: number;
-        /**
-         * 是否只监听一次
-         */
-        once: boolean;
-    }
 }
