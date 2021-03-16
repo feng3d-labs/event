@@ -32,6 +32,7 @@ namespace feng3d
          */
         static getEventEmitter(target: any)
         {
+            console.assert(target !== undefined && target !== null, `被监听对象无法为undefined或者null！`);
             if (target instanceof EventEmitter)
             {
                 return target;
@@ -371,7 +372,7 @@ namespace feng3d
                 if (typeof this[__event_emitter_target__]?.[__event_bubble_function__] === "function")
                 {
                     var bubbleTargets: EventEmitter[] = this[__event_emitter_target__][__event_bubble_function__]();
-                    bubbleTargets = bubbleTargets.map(v => EventEmitter.getOrCreateEventEmitter(v));
+                    bubbleTargets = bubbleTargets.filter(v => (v !== undefined && v !== null)).map(v => EventEmitter.getOrCreateEventEmitter(v));
                     for (var i = 0, n = bubbleTargets.length; i < n; i++)
                     {
                         var bubbleTarget = bubbleTargets[i];

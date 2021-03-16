@@ -193,7 +193,7 @@ declare namespace feng3d {
      */
     var event: FEvent;
     /**
-     * 可针对（除undefined、Symbol外）的任意对象（null, 0, 1, true, false, "1", {}）派发事件
+     * 可针对（除undefined、null、Symbol外）的任意对象（0, 1, true, false, "1", {}）派发事件
      */
     class FEvent {
         /**
