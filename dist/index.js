@@ -50,15 +50,16 @@ var feng3d;
             return eventEmitter;
         };
         /**
-         * Return an array listing the events for which the emitter has registered
-         * listeners.
+         * 返回监听的事件类型列表。
          */
         EventEmitter.prototype.eventNames = function () {
             var names = Object.keys(this[feng3d.__event__]);
             return names;
         };
         /**
-         * Return the number of listeners listening to a given event.
+         * 返回指定事件类型的监听数量。
+         *
+         * @param type 事件的类型。
          */
         EventEmitter.prototype.listenerCount = function (type) {
             var _a, _b;

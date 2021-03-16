@@ -32,12 +32,13 @@ declare namespace feng3d {
         static getOrCreateEventEmitter(target: any): EventEmitter<any>;
         constructor(target?: any);
         /**
-         * Return an array listing the events for which the emitter has registered
-         * listeners.
+         * 返回监听的事件类型列表。
          */
-        eventNames(): string[];
+        eventNames<K extends keyof T & string>(): K[];
         /**
-         * Return the number of listeners listening to a given event.
+         * 返回指定事件类型的监听数量。
+         *
+         * @param type 事件的类型。
          */
         listenerCount<K extends keyof T & string>(type: K): number;
         /**

@@ -65,17 +65,18 @@ namespace feng3d
         }
 
         /**
-         * Return an array listing the events for which the emitter has registered
-         * listeners.
+         * 返回监听的事件类型列表。
          */
-        eventNames()
+        eventNames<K extends keyof T & string>()
         {
-            const names = Object.keys(this[__event__]);
+            const names = Object.keys(this[__event__]) as K[];
             return names;
         }
 
         /**
-         * Return the number of listeners listening to a given event.
+         * 返回指定事件类型的监听数量。
+         * 
+         * @param type 事件的类型。
          */
         listenerCount<K extends keyof T & string>(type: K): number
         {
