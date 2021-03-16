@@ -1,9 +1,12 @@
 declare namespace feng3d {
     /**
+     * 事件属性名称常量
+     */
+    export const __events__ = "__events__";
+    /**
      * 事件派发器
      */
     export class EventEmitter<T = any> {
-        static readonly __events__ = "__events__";
         private static targetMap;
         constructor(target?: any);
         /**

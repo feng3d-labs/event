@@ -1,12 +1,14 @@
 namespace feng3d
 {
-
+    /**
+     * 事件属性名称常量
+     */
+    export const __events__ = "__events__";
     /**
      * 事件派发器
      */
     export class EventEmitter<T = any>
     {
-        static readonly __events__ = "__events__";
         private static targetMap = new Map<any, EventEmitter>();
 
         constructor(target?: any)
@@ -25,7 +27,7 @@ namespace feng3d
          */
         eventNames()
         {
-            const names = Object.keys(this[EventEmitter.__events__]);
+            const names = Object.keys(this[__events__]);
             return names;
         }
 
@@ -34,7 +36,7 @@ namespace feng3d
          */
         listenerCount<K extends keyof T & string>(type: K)
         {
-            return this[EventEmitter.__events__]?.[type]?.length || 0;
+            return this[__events__]?.[type]?.length || 0;
         }
 
         /**
@@ -110,11 +112,11 @@ namespace feng3d
         {
             if (listener == null) return;
 
-            var objectListener = this[EventEmitter.__events__];
+            var objectListener = this[__events__];
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] }
-                this[EventEmitter.__events__] = objectListener;
+                this[__events__] = objectListener;
             }
 
             thisObject = thisObject || this;
@@ -151,11 +153,11 @@ namespace feng3d
         {
             if (!type)
             {
-                this[EventEmitter.__events__] = undefined;
+                this[__events__] = undefined;
                 return;
             }
 
-            var objectListener = this[EventEmitter.__events__];
+            var objectListener = this[__events__];
             if (!objectListener) return;
 
             if (!listener)
@@ -205,11 +207,11 @@ namespace feng3d
          */
         onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0)
         {
-            var objectListener = this[EventEmitter.__events__];
+            var objectListener = this[__events__];
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] };
-                this[EventEmitter.__events__] = objectListener
+                this[__events__] = objectListener
             }
 
             var listeners: ListenerVO[] = objectListener.__anyEventType__;
@@ -242,7 +244,7 @@ namespace feng3d
          */
         offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
         {
-            var objectListener = this[EventEmitter.__events__];
+            var objectListener = this[__events__];
             if (!listener)
             {
                 if (objectListener)
@@ -278,7 +280,7 @@ namespace feng3d
                 e.currentTarget = this;
             } catch (error) { }
             //
-            var objectListener = this[EventEmitter.__events__];
+            var objectListener = this[__events__];
             if (!objectListener) return;
 
             var listeners: ListenerVO[] = objectListener[e.type];
