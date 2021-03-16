@@ -155,7 +155,7 @@ namespace feng3d
         {
             if (listener == null) return;
 
-            var objectListener = this[__event__];
+            var objectListener: ObjectListener = this[__event__];
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] }
@@ -200,7 +200,7 @@ namespace feng3d
                 return;
             }
 
-            var objectListener = this[__event__];
+            var objectListener: ObjectListener = this[__event__];
             if (!objectListener) return;
 
             if (!listener)
@@ -250,7 +250,7 @@ namespace feng3d
          */
         onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0)
         {
-            var objectListener = this[__event__];
+            var objectListener: ObjectListener = this[__event__];
             if (!objectListener)
             {
                 objectListener = { __anyEventType__: [] };
@@ -287,7 +287,7 @@ namespace feng3d
          */
         offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
         {
-            var objectListener = this[__event__];
+            var objectListener: ObjectListener = this[__event__];
             if (!listener)
             {
                 if (objectListener)
@@ -319,7 +319,7 @@ namespace feng3d
             e.target = e.target || this[__event_emitter_target__];
             e.currentTarget = this[__event_emitter_target__];
             //
-            var objectListener = this[__event__];
+            var objectListener: ObjectListener = this[__event__];
             if (!objectListener) return;
 
             var listeners: ListenerVO[] = objectListener[e.type];
