@@ -5,6 +5,10 @@ var feng3d;
      */
     feng3d.__events__ = "__events__";
     /**
+     * 事件派发器代理的对象
+     */
+    feng3d.__event_emitter_target__ = "__event_emitter_target__";
+    /**
      * 事件派发器
      */
     var EventEmitter = /** @class */ (function () {
@@ -14,6 +18,7 @@ var feng3d;
             }
             console.assert(!EventEmitter.targetMap.has(target), "\u540C\u4E00\u4E2A " + target + " \u5BF9\u8C61\u65E0\u6CD5\u5BF9\u5E94\u4E24\u4E2A EventEmitter\uFF01");
             EventEmitter.targetMap.set(target, this);
+            this[feng3d.__event_emitter_target__] = target;
         }
         /**
          * Return an array listing the events for which the emitter has registered
@@ -52,9 +57,9 @@ var feng3d;
          */
         EventEmitter.prototype.emitEvent = function (e) {
             var targets = e.targets = e.targets || [];
-            if (targets.indexOf(this) != -1)
+            if (targets.indexOf(this[feng3d.__event_emitter_target__]) != -1)
                 return false;
-            targets.push(this);
+            targets.push(this[feng3d.__event_emitter_target__]);
             e.handles = [];
             this.handleEvent(e);
             this.handelEventBubbles(e);
@@ -221,12 +226,8 @@ var feng3d;
          */
         EventEmitter.prototype.handleEvent = function (e) {
             //设置目标
-            e.target || (e.target = this);
-            try {
-                //使用 try 处理 MouseEvent 等无法更改currentTarget的对象
-                e.currentTarget = this;
-            }
-            catch (error) { }
+            e.target = e.target || this[feng3d.__event_emitter_target__];
+            e.currentTarget = this[feng3d.__event_emitter_target__];
             //
             var objectListener = this[feng3d.__events__];
             if (!objectListener)

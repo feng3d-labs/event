@@ -4,6 +4,12 @@ namespace feng3d
      * 事件属性名称常量
      */
     export const __events__ = "__events__";
+
+    /**
+     * 事件派发器代理的对象
+     */
+    export const __event_emitter_target__ = "__event_emitter_target__";
+
     /**
      * 事件派发器
      */
@@ -19,6 +25,7 @@ namespace feng3d
             }
             console.assert(!EventEmitter.targetMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
             EventEmitter.targetMap.set(target, this);
+            this[__event_emitter_target__] = target;
         }
 
         /**
@@ -63,9 +70,9 @@ namespace feng3d
         emitEvent<K extends keyof T & string>(e: Event<T[K]>)
         {
             var targets = e.targets = e.targets || [];
-            if (targets.indexOf(this) != -1)
+            if (targets.indexOf(this[__event_emitter_target__]) != -1)
                 return false;
-            targets.push(this);
+            targets.push(this[__event_emitter_target__]);
 
             e.handles = [];
 
@@ -273,12 +280,8 @@ namespace feng3d
         protected handleEvent<K extends keyof T & string>(e: Event<T[K]>)
         {
             //设置目标
-            e.target || (e.target = this);
-            try
-            {
-                //使用 try 处理 MouseEvent 等无法更改currentTarget的对象
-                e.currentTarget = this;
-            } catch (error) { }
+            e.target = e.target || this[__event_emitter_target__];
+            e.currentTarget = this[__event_emitter_target__];
             //
             var objectListener = this[__events__];
             if (!objectListener) return;

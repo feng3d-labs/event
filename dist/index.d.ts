@@ -4,6 +4,10 @@ declare namespace feng3d {
      */
     export const __events__ = "__events__";
     /**
+     * 事件派发器代理的对象
+     */
+    export const __event_emitter_target__ = "__event_emitter_target__";
+    /**
      * 事件派发器
      */
     export class EventEmitter<T = any> {
