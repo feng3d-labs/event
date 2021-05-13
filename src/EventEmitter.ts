@@ -125,7 +125,7 @@ export class EventEmitter<T = any>
 
         const targets = e.targets;
 
-        if (targets.indexOf(this[__event_emitter_target__]) != -1)
+        if (targets.indexOf(this[__event_emitter_target__]) !== -1)
         {
             return false;
         }
@@ -141,7 +141,7 @@ export class EventEmitter<T = any>
 
             while (e.targetsIndex < n)
             {
-                var eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsIndex++]);
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsIndex++]);
 
                 eventEmitter.handleEvent(e); // 传递到其它对象中去，将会增加 targets 的长度。
             }
@@ -153,7 +153,7 @@ export class EventEmitter<T = any>
                 {
                     while (e.targetsBubblesIndex < n)
                     {
-                        var eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsBubblesIndex++]);
+                        const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsBubblesIndex++]);
 
                         eventEmitter.handelEventBubbles(e); // 冒泡到其它对象中去，将会增加 targets 的长度。
                     }
@@ -212,9 +212,10 @@ export class EventEmitter<T = any>
         thisObject = thisObject || this;
         const listeners: ListenerVO[] = objectListener[type] = objectListener[type] || [];
 
-        for (var i = 0; i < listeners.length; i++)
+        let i = 0
+        for (i = 0; i < listeners.length; i++)
         {
-            var element = listeners[i];
+            const element = listeners[i];
 
             if (element.listener == listener && element.thisObject == thisObject)
             {
@@ -222,9 +223,9 @@ export class EventEmitter<T = any>
                 break;
             }
         }
-        for (var i = 0; i < listeners.length; i++)
+        for (let i = 0; i < listeners.length; i++)
         {
-            var element = listeners[i];
+            const element = listeners[i];
 
             if (priority > element.priority)
             {
@@ -314,9 +315,10 @@ export class EventEmitter<T = any>
 
         const listeners: ListenerVO[] = objectListener.__anyEventType__;
 
-        for (var i = 0; i < listeners.length; i++)
+        let i = 0;
+        for (i = 0; i < listeners.length; i++)
         {
-            var element = listeners[i];
+            const element = listeners[i];
 
             if (element.listener == listener && element.thisObject == thisObject)
             {
@@ -324,9 +326,9 @@ export class EventEmitter<T = any>
                 break;
             }
         }
-        for (var i = 0; i < listeners.length; i++)
+        for (i = 0; i < listeners.length; i++)
         {
-            var element = listeners[i];
+            const element = listeners[i];
 
             if (priority > element.priority)
             {
@@ -393,12 +395,13 @@ export class EventEmitter<T = any>
             // 遍历调用事件回调函数
             var listeners0 = listeners.concat();
 
-            for (var i = 0; i < listeners0.length && !e.isStop; i++)
+            let i = 0;
+            for (i = 0; i < listeners0.length && !e.isStop; i++)
             {
                 listeners0[i].listener.call(listeners0[i].thisObject, e);// 此处可能会删除当前事件，所以上面必须拷贝
                 e.handles.push(listeners0[i]);
             }
-            for (var i = listeners.length - 1; i >= 0; i--)
+            for (i = listeners.length - 1; i >= 0; i--)
             {
                 if (listeners[i].once)
                 {
