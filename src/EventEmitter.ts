@@ -199,7 +199,7 @@ export class EventEmitter<T = any>
      */
     on<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false): this
     {
-        if (listener == null) return this;
+        if (listener === null) return this;
 
         let objectListener: ObjectListener = this[__event__];
 
@@ -212,12 +212,13 @@ export class EventEmitter<T = any>
         thisObject = thisObject || this;
         const listeners: ListenerVO[] = objectListener[type] = objectListener[type] || [];
 
-        let i = 0
+        let i = 0;
+
         for (i = 0; i < listeners.length; i++)
         {
             const element = listeners[i];
 
-            if (element.listener == listener && element.thisObject == thisObject)
+            if (element.listener === listener && element.thisObject === thisObject)
             {
                 listeners.splice(i, 1);
                 break;
@@ -271,12 +272,12 @@ export class EventEmitter<T = any>
             {
                 const element = listeners[i];
 
-                if (element.listener == listener && element.thisObject == thisObject)
+                if (element.listener === listener && element.thisObject === thisObject)
                 {
                     listeners.splice(i, 1);
                 }
             }
-            if (listeners.length == 0)
+            if (listeners.length === 0)
             {
                 delete objectListener[type];
             }
@@ -316,11 +317,12 @@ export class EventEmitter<T = any>
         const listeners: ListenerVO[] = objectListener.__anyEventType__;
 
         let i = 0;
+
         for (i = 0; i < listeners.length; i++)
         {
             const element = listeners[i];
 
-            if (element.listener == listener && element.thisObject == thisObject)
+            if (element.listener === listener && element.thisObject === thisObject)
             {
                 listeners.splice(i, 1);
                 break;
@@ -365,7 +367,7 @@ export class EventEmitter<T = any>
             {
                 const element = listeners[i];
 
-                if (element.listener == listener && element.thisObject == thisObject)
+                if (element.listener === listener && element.thisObject === thisObject)
                 {
                     listeners.splice(i, 1);
                 }
@@ -396,6 +398,7 @@ export class EventEmitter<T = any>
             var listeners0 = listeners.concat();
 
             let i = 0;
+
             for (i = 0; i < listeners0.length && !e.isStop; i++)
             {
                 listeners0[i].listener.call(listeners0[i].thisObject, e);// 此处可能会删除当前事件，所以上面必须拷贝
@@ -408,7 +411,7 @@ export class EventEmitter<T = any>
                     listeners.splice(i, 1);
                 }
             }
-            if (listeners.length == 0)
+            if (listeners.length === 0)
             {
                 delete objectListener[e.type];
             }
@@ -418,13 +421,13 @@ export class EventEmitter<T = any>
         if (listeners)
         {
             // 遍历调用事件回调函数
-            var listeners0 = listeners.concat();
+            const listeners0 = listeners.concat();
 
-            for (var i = 0; i < listeners0.length && !e.isStop; i++)
+            for (let i = 0; i < listeners0.length && !e.isStop; i++)
             {
                 listeners0[i].listener.call(listeners0[i].thisObject, e);// 此处可能会删除当前事件，所以上面必须拷贝
             }
-            for (var i = listeners.length - 1; i >= 0; i--)
+            for (let i = listeners.length - 1; i >= 0; i--)
             {
                 if (listeners[i].once)
                 {
