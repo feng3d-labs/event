@@ -23,7 +23,7 @@
     "build:dev": "rollup -c",
     "build:types": "rimraf out && tsc && node ./scripts/apiExtractorLernaMmonorepo.js",
     "watch": "rollup -cw",
-    "lint": "eslint --ext .js --ext .ts bundles packages scripts --ignore-path .gitignore --max-warnings 0",
+    "lint": "eslint --ext .js --ext .ts src scripts --ignore-path .gitignore --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
     "docs": "typedoc src/index.ts",
     "predist": "rimraf dist/*",
