@@ -1,12 +1,12 @@
 /**
  * 事件属性名称常量
  */
-export const __event__ = '__event__';
+export const EVENT_KEY = '__event__';
 
 /**
  * 事件派发器代理的对象
  */
-export const __event_emitter_target__ = '__event_emitter_target__';
+export const EVENT_EMITTER_TARGET = '__event_emitter_target__';
 
 /**
  * 事件冒泡函数名称常量，冒泡的对象需要定义该名称的函数。
@@ -15,7 +15,7 @@ export const __event_emitter_target__ = '__event_emitter_target__';
  *
  * var bubbleObject: { __event_bubble_function__: () => any[] }
  */
-export const __event_bubble_function__ = '__event_bubble_function__';
+export const EVENT_BUBBLE_FUNCTION = '__event_bubble_function__';
 
 /**
  * 事件派发器
@@ -61,7 +61,7 @@ export class EventEmitter<T = any>
         }
         console.assert(!EventEmitter.targetMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
         EventEmitter.targetMap.set(target, this);
-        this[__event_emitter_target__] = target;
+        this[EVENT_EMITTER_TARGET] = target;
     }
 
     /**
@@ -69,7 +69,7 @@ export class EventEmitter<T = any>
      */
     eventNames<K extends keyof T & string>()
     {
-        const names = Object.keys(this[__event__]) as K[];
+        const names = Object.keys(this[EVENT_KEY]) as K[];
 
         return names;
     }
@@ -81,7 +81,7 @@ export class EventEmitter<T = any>
      */
     listenerCount<K extends keyof T & string>(type: K): number
     {
-        return this[__event__]?.[type]?.length || 0;
+        return this[EVENT_KEY]?.[type]?.length || 0;
     }
 
     /**
@@ -125,11 +125,11 @@ export class EventEmitter<T = any>
 
         const targets = e.targets;
 
-        if (targets.indexOf(this[__event_emitter_target__]) !== -1)
+        if (targets.indexOf(this[EVENT_EMITTER_TARGET]) !== -1)
         {
             return false;
         }
-        targets.push(this[__event_emitter_target__]);
+        targets.push(this[EVENT_EMITTER_TARGET]);
 
         //
         let index = e.targetsIndex;
@@ -201,12 +201,12 @@ export class EventEmitter<T = any>
     {
         if (listener === null) return this;
 
-        let objectListener: ObjectListener = this[__event__];
+        let objectListener: ObjectListener = this[EVENT_KEY];
 
         if (!objectListener)
         {
             objectListener = { __anyEventType__: [] };
-            this[__event__] = objectListener;
+            this[EVENT_KEY] = objectListener;
         }
 
         thisObject = thisObject || this;
@@ -248,11 +248,11 @@ export class EventEmitter<T = any>
     {
         if (!type)
         {
-            this[__event__] = undefined;
+            this[EVENT_KEY] = undefined;
             return;
         }
 
-        const objectListener: ObjectListener = this[__event__];
+        const objectListener: ObjectListener = this[EVENT_KEY];
 
         if (!objectListener) return;
 
@@ -306,12 +306,12 @@ export class EventEmitter<T = any>
      */
     onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false)
     {
-        let objectListener: ObjectListener = this[__event__];
+        let objectListener: ObjectListener = this[EVENT_KEY];
 
         if (!objectListener)
         {
             objectListener = { __anyEventType__: [] };
-            this[__event__] = objectListener;
+            this[EVENT_KEY] = objectListener;
         }
 
         const listeners: ListenerVO[] = objectListener.__anyEventType__;
@@ -349,7 +349,7 @@ export class EventEmitter<T = any>
      */
     offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
     {
-        const objectListener: ObjectListener = this[__event__];
+        const objectListener: ObjectListener = this[EVENT_KEY];
 
         if (!listener)
         {
@@ -383,10 +383,10 @@ export class EventEmitter<T = any>
     protected handleEvent<K extends keyof T & string>(e: Event<T[K]>)
     {
         // 设置目标
-        e.target = e.target || this[__event_emitter_target__];
-        e.currentTarget = this[__event_emitter_target__];
+        e.target = e.target || this[EVENT_EMITTER_TARGET];
+        e.currentTarget = this[EVENT_EMITTER_TARGET];
         //
-        const objectListener: ObjectListener = this[__event__];
+        const objectListener: ObjectListener = this[EVENT_KEY];
 
         if (!objectListener) return;
 
@@ -395,7 +395,7 @@ export class EventEmitter<T = any>
         if (listeners)
         {
             // 遍历调用事件回调函数
-            var listeners0 = listeners.concat();
+            const listeners0 = listeners.concat();
 
             let i = 0;
 
@@ -443,9 +443,9 @@ export class EventEmitter<T = any>
      */
     protected handelEventBubbles<K extends keyof T & string>(e: Event<T[K]>)
     {
-        if (typeof this[__event_emitter_target__]?.[__event_bubble_function__] === 'function')
+        if (typeof this[EVENT_EMITTER_TARGET]?.[EVENT_BUBBLE_FUNCTION] === 'function')
         {
-            const bubbleTargets: any[] = this[__event_emitter_target__][__event_bubble_function__]();
+            const bubbleTargets: any[] = this[EVENT_EMITTER_TARGET][EVENT_BUBBLE_FUNCTION]();
 
             bubbleTargets.forEach((v) =>
             {
