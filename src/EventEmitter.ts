@@ -1,5 +1,4 @@
-namespace feng3d
-{
+
     /**
      * 事件属性名称常量
      */
@@ -190,7 +189,7 @@ namespace feng3d
          */
         on<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false): this
         {
-            if (listener == null) return;
+            if (listener == null) return this;
 
             var objectListener: ObjectListener = this[__event__];
             if (!objectListener)
@@ -505,4 +504,3 @@ namespace feng3d
          */
         once: boolean;
     }
-}
