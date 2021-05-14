@@ -35,9 +35,6 @@
     "dist/",
     "*.d.ts"
   ],
-  "pre-commit": [
-    "lintfix"
-  ],
   "devDependencies": {
     "@lerna/batch-packages": "^3.13.0",
     "@lerna/filter-packages": "^3.13.0",
@@ -55,7 +52,6 @@
     "cross-env": "^5.2.0",
     "eslint": "^7.2.0",
     "lerna": "^3.13.3",
-    "pre-commit": "^1.2.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.32.1",
     "rollup-plugin-jscc": "^2.0.0",
