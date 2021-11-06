@@ -3,7 +3,7 @@
 import { ok, strictEqual } from 'assert';
 import { anyEmitter, IEvent, EventEmitter } from '../src';
 
-describe('FEvent', () =>
+describe('anyEmitter', () =>
 {
     it('可针对任意对象派发事件', () =>
     {
