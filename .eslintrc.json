@@ -5,9 +5,6 @@
         "node": true,
         "mocha": true
     },
-    "ignorePatterns": [
-        "*.d.ts"
-    ],
     "globals": {
         "global": false
     },
@@ -28,15 +25,6 @@
         "no-cond-assign": [
             1,
             "except-parens"
-        ],
-        "no-console": [
-            0,
-            {
-                "allow": [
-                    "warn",
-                    "error"
-                ]
-            }
         ],
         "no-constant-condition": 1,
         "no-control-regex": 1,
@@ -67,7 +55,7 @@
             0,
             {
                 "requireReturn": false,
-                "requireReturnType": false,
+                "requireReturnType": true,
                 "requireParamDescription": true,
                 "requireReturnDescription": true
             }
@@ -78,7 +66,6 @@
         "array-callback-return": 1,
         "block-scoped-var": 1,
         "complexity": 0,
-        "consistent-return": 0,
         "curly": [
             1,
             "multi-line"
@@ -93,13 +80,13 @@
         "guard-for-in": 0,
         "no-alert": 1,
         "no-caller": 1,
-        "no-case-declarations": 1,
+        "no-case-declarations": 0,
         "no-div-regex": 1,
         "no-else-return": 1,
         "no-empty-function": 1,
         "no-empty-pattern": 1,
         "no-eq-null": 1,
-        "no-eval": 0,
+        "no-eval": 1,
         "no-extend-native": 1,
         "no-extra-bind": 1,
         "no-extra-label": 1,
@@ -142,14 +129,12 @@
         "no-octal": 1,
         "no-octal-escape": 1,
         "no-param-reassign": 0,
-        "no-proto": 0,
         "no-redeclare": 1,
         "no-return-assign": 1,
         "no-script-url": 1,
         "no-self-assign": 1,
         "no-self-compare": 1,
         "no-sequences": 1,
-        "no-throw-literal": 1,
         "no-unmodified-loop-condition": 1,
         "no-unused-expressions": "off",
         "no-unused-labels": 1,
@@ -187,10 +172,6 @@
         "no-undef-init": 1,
         "no-undefined": 0,
         "no-unused-vars": "off",
-        "no-use-before-define": [
-            1,
-            "nofunc"
-        ],
         // Node.js and CommonJS
         "callback-return": 0,
         "global-require": 1,
@@ -244,10 +225,6 @@
             1,
             "unix"
         ],
-        "func-names": [
-            1,
-            "always"
-        ],
         "func-style": [
             1,
             "declaration",
@@ -298,13 +275,6 @@
             1,
             6
         ],
-        "max-len": [
-            0,
-            {
-                "code": 125,
-                "tabWidth": 4
-            }
-        ],
         "max-lines": 0,
         "max-nested-callbacks": [
             1,
@@ -319,12 +289,6 @@
             }
         ],
         "max-statements": 0,
-        "max-statements-per-line": [
-            1,
-            {
-                "max": 2
-            }
-        ],
         "new-cap": [
             1,
             {
@@ -334,11 +298,7 @@
             }
         ],
         "new-parens": 1,
-        "newline-after-var": [
-            1,
-            "always"
-        ],
-        "newline-before-return": 0,
+        "newline-before-return": 1,
         "newline-per-chained-call": [
             1,
             {
@@ -350,8 +310,7 @@
         "no-continue": 0,
         "no-inline-comments": 0,
         "no-lonely-if": 1,
-        "no-mixed-operators": 1,
-        "no-mixed-spaces-and-tabs": 0,
+        "no-mixed-spaces-and-tabs": 1,
         "no-multiple-empty-lines": [
             1,
             {
@@ -361,7 +320,6 @@
             }
         ],
         "no-negated-condition": 0,
-        "no-nested-ternary": 1,
         "no-new-object": 1,
         "no-plusplus": 0,
         "no-restricted-syntax": [
@@ -535,18 +493,17 @@
                 "plugin:@typescript-eslint/recommended"
             ],
             "rules": {
+                "@typescript-eslint/ban-types":0,
                 "@typescript-eslint/semi": 1,
                 "@typescript-eslint/no-explicit-any": 0,
                 "@typescript-eslint/interface-name-prefix": 0,
-                "@typescript-eslint/no-unused-expressions": 1,
-                "@typescript-eslint/explicit-module-boundary-types": 0,
-                "@typescript-eslint/ban-types": 0,
                 "@typescript-eslint/no-unused-vars": [
                     "error",
                     {
                         "argsIgnorePattern": "^_"
                     }
-                ]
+                ],
+                "@typescript-eslint/explicit-module-boundary-types": 0
             }
         }
     ]

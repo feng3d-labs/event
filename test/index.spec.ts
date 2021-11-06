@@ -10,7 +10,7 @@ describe('FEvent', () =>
         const result0 = ['0', '1', 'true', 'false', 'string', '{}'];
         const obj = {};
 
-        const result = [];
+        const result: string[] = [];
 
         event.on(0, 'print', () => { result.push('0'); });
         event.on(1, 'print', () => { result.push('1'); });
@@ -182,7 +182,7 @@ describe('FEvent', () =>
         const data = { d: 0 };
         let out: Event<any> = null;
         let parent = { v: 0 };
-        const __event_bubble_function__ = function __event_bubble_function__() { return [this.parent]; };
+        const __event_bubble_function__ = function __event_bubble_function__(this: any) { return [this.parent]; };
         // feng3d.__event_bubble_function__
         let child = { v: 1, parent, __event_bubble_function__ };
 
@@ -275,6 +275,7 @@ describe('FEvent', () =>
                 {
                     c.entity = entity;
                 });
+
                 return node;
             }
 
@@ -367,6 +368,7 @@ describe('FEvent', () =>
                 {
                     c.entity = entity;
                 });
+
                 return node;
             }
 
