@@ -6,7 +6,7 @@ export default [
         input: 'src/index.ts',
         output: {
             file: './dist/index.js',
-            name: 'watcher',
+            name: 'feng3d',
             format: 'umd',
             sourcemap: true
         },
@@ -18,9 +18,9 @@ export default [
         input: 'src/index.ts',
         output: {
             file: './dist/index.d.ts',
-            name: 'watcher',
+            name: 'feng3d',
             format: 'es',
-            footer: 'export as namespace watcher;'
+            footer: 'export as namespace feng3d;'
         },
         plugins: [
             typescript({ clean: true, tsconfigOverride: { compilerOptions: { module: 'ES2015', declaration: false, declarationMap: false } } }),
