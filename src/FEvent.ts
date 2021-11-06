@@ -168,7 +168,13 @@ export class FEvent
      */
     makeEvent<T>(type: string, data: T, bubbles = false): Event<T>
     {
-        return { type, data, bubbles };
+        const e = {
+            type, data, bubbles, target: null,
+            currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [],
+            targetsIndex: -1,
+            targetsBubblesIndex: -1,
+        } as Event<T>;
+        return e;
     }
 }
 

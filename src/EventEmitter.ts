@@ -172,7 +172,12 @@ export class EventEmitter<T = any>
      */
     emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false)
     {
-        const e: Event<T[K]> = { type, data, bubbles, target: null, currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [] };
+        const e = {
+            type, data, bubbles, target: null,
+            currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [],
+            targetsIndex: -1,
+            targetsBubblesIndex: -1,
+        } as Event<T[K]>;
 
         return this.emitEvent(e);
     }
@@ -249,17 +254,17 @@ export class EventEmitter<T = any>
         if (!type)
         {
             this[EVENT_KEY] = undefined;
-            return;
+            return this;
         }
 
         const objectListener: ObjectListener = this[EVENT_KEY];
 
-        if (!objectListener) return;
+        if (!objectListener) return this;
 
         if (!listener)
         {
             delete objectListener[type];
-            return;
+            return this;
         }
 
         thisObject = thisObject || this;
@@ -465,8 +470,8 @@ interface ObjectListener
 }
 
 /**
-     * 事件
-     */
+ * 事件
+ */
 export interface Event<T>
 {
     /**
@@ -507,22 +512,22 @@ export interface Event<T>
     /**
      * 事件流过的对象列表，事件路径
      */
-    targets?: any[];
+    targets: any[];
 
     /**
      * 当前事件流到targets的索引
      */
-    targetsIndex?: number;
+    targetsIndex: number;
 
     /**
      * 当前事件冒泡流到targets的索引
      */
-    targetsBubblesIndex?: number;
+    targetsBubblesIndex: number;
 
     /**
      * 处理列表
      */
-    handles?: ListenerVO[];
+    handles: ListenerVO[];
 }
 
 /**

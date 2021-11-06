@@ -23,7 +23,8 @@
     "access": "public"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "readme"
   ],
   "devDependencies": {
     "@types/mocha": "^8.2.3",
