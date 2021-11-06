@@ -1,12 +1,12 @@
 /**
  * 事件属性名称常量
  */
-export const EVENT_KEY = '__event__';
+const EVENT_KEY = '__event__';
 
 /**
  * 事件派发器代理的对象
  */
-export const EVENT_EMITTER_TARGET = '__event_emitter_target__';
+const EVENT_EMITTER_TARGET = '__event_emitter_target__';
 
 /**
  * 事件冒泡函数名称常量，冒泡的对象需要定义该名称的函数。
@@ -15,7 +15,7 @@ export const EVENT_EMITTER_TARGET = '__event_emitter_target__';
  *
  * var bubbleObject: { __event_bubble_function__: () => any[] }
  */
-export const EVENT_BUBBLE_FUNCTION = '__event_bubble_function__';
+const EVENT_BUBBLE_FUNCTION = '__event_bubble_function__';
 
 /**
  * 事件派发器
@@ -93,7 +93,7 @@ export class EventEmitter<T = any>
      * @param thisObject                listener函数作用域
      * @param priority					事件侦听器的优先级。数字越大，优先级越高。默认优先级为 0。
      */
-    once<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0): this
+    once<K extends keyof T & string>(type: K, listener: (event: IEvent<T[K]>) => void, thisObject?: any, priority = 0): this
     {
         this.on(type, listener, thisObject, priority, true);
 
@@ -108,7 +108,7 @@ export class EventEmitter<T = any>
      * @param e   事件对象
      * @returns 返回事件是否被该对象处理
      */
-    emitEvent<K extends keyof T & string>(e: Event<T[K]>)
+    emitEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
         // 是否为初次派发
         const isEventStart = !e.target;
@@ -181,7 +181,7 @@ export class EventEmitter<T = any>
             currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [],
             targetsIndex: 0,
             targetsBubblesIndex: 0,
-        } as Event<T[K]>;
+        } as IEvent<T[K]>;
 
         return this.emitEvent(e);
     }
@@ -206,7 +206,7 @@ export class EventEmitter<T = any>
      * @param priority					事件监听器的优先级。数字越大，优先级越高。默认为0。
      * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
      */
-    on<K extends keyof T & string>(type: K, listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false): this
+    on<K extends keyof T & string>(type: K, listener: (event: IEvent<T[K]>) => void, thisObject?: any, priority = 0, once = false): this
     {
         if (listener === null) return this;
 
@@ -254,7 +254,7 @@ export class EventEmitter<T = any>
      * @param listener					要删除的监听器对象。可选。该值为空时所有指定类型的监听均将被移除。
      * @param thisObject                监听器的上下文。可选。
      */
-    off<K extends keyof T & string>(type?: K, listener?: (event: Event<T[K]>) => void, thisObject?: any): this
+    off<K extends keyof T & string>(type?: K, listener?: (event: IEvent<T[K]>) => void, thisObject?: any): this
     {
         if (!type)
         {
@@ -318,7 +318,7 @@ export class EventEmitter<T = any>
      * @param priority                  事件监听器的优先级。数字越大，优先级越高。默认为0。
      * @param once                      值为true时在监听一次事件后该监听器将被移除。默认为false。
      */
-    onAny<K extends keyof T & string>(listener: (event: Event<T[K]>) => void, thisObject?: any, priority = 0, once = false)
+    onAny<K extends keyof T & string>(listener: (event: IEvent<T[K]>) => void, thisObject?: any, priority = 0, once = false)
     {
         let objectListener: ObjectListener = this[EVENT_KEY];
 
@@ -362,7 +362,7 @@ export class EventEmitter<T = any>
      * @param listener                  处理事件的监听器函数。
      * @param thisObject                监听器的上下文。可选。
      */
-    offAny<K extends keyof T & string>(listener?: (event: Event<T[K]>) => void, thisObject?: any)
+    offAny<K extends keyof T & string>(listener?: (event: IEvent<T[K]>) => void, thisObject?: any)
     {
         const objectListener: ObjectListener = this[EVENT_KEY];
 
@@ -397,7 +397,7 @@ export class EventEmitter<T = any>
      * 处理事件
      * @param e 事件
      */
-    protected handleEvent<K extends keyof T & string>(e: Event<T[K]>)
+    protected handleEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
         // 设置目标
         e.target = e.target || this[EVENT_EMITTER_TARGET];
@@ -458,7 +458,7 @@ export class EventEmitter<T = any>
      * 处理事件冒泡
      * @param e 事件
      */
-    protected handelEventBubbles<K extends keyof T & string>(e: Event<T[K]>)
+    protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
     {
         if (typeof this[EVENT_EMITTER_TARGET]?.[EVENT_BUBBLE_FUNCTION] === 'function')
         {
@@ -484,7 +484,7 @@ interface ObjectListener
 /**
  * 事件
  */
-export interface Event<T>
+export interface IEvent<T>
 {
     /**
      * 事件的类型。类型区分大小写。
@@ -550,7 +550,7 @@ interface ListenerVO
     /**
      * 监听函数
      */
-    listener: (event: Event<any>) => void;
+    listener: (event: IEvent<any>) => void;
     /**
      * 监听函数作用域
      */
