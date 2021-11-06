@@ -191,35 +191,35 @@ describe('FEvent', () =>
         ok(out.data === data);
         // 派发事件的对象
         ok(out.target === child);
-        // // 当前处理事件的对象
-        // ok(out.currentTarget === parent);
-        // // 事件冒泡流向
-        // ok(out.targets[0] === child);
-        // ok(out.targets[1] === parent);
+        // 当前处理事件的对象
+        ok(out.currentTarget === parent);
+        // 事件冒泡流向
+        ok(out.targets[0] === child);
+        ok(out.targets[1] === parent);
 
-        // // 处理停止事件的冒泡
-        // parent = { v: 0 };
-        // child = { v: 1, parent, __event_bubble_function__ };
-        // let outstr = '';
+        // 处理停止事件的冒泡
+        parent = { v: 0 };
+        child = { v: 1, parent, __event_bubble_function__ };
+        let outstr = '';
 
-        // event.on(child, 'b1', (e) => { e.isStopBubbles = true; }, null, -1); // 新增优先级较低的监听器，并停止冒泡行为。
-        // event.on(child, 'b1', () => { outstr += 'child0'; }, null, 0); // 该监听器将会被触发。
-        // event.on(child, 'b1', () => { outstr += 'child-1'; }, null, -2); // 该监听器将会被触发。
-        // event.on(parent, 'b1', () => { outstr += 'parent'; }); // 冒泡被终止，该监听器不会被触发。
-        // event.emit(child, 'b1', null, true);
-        // strictEqual(outstr, 'child0child-1');
+        event.on(child, 'b1', (e) => { e.isStopBubbles = true; }, null, -1); // 新增优先级较低的监听器，并停止冒泡行为。
+        event.on(child, 'b1', () => { outstr += 'child0'; }, null, 0); // 该监听器将会被触发。
+        event.on(child, 'b1', () => { outstr += 'child-1'; }, null, -2); // 该监听器将会被触发。
+        event.on(parent, 'b1', () => { outstr += 'parent'; }); // 冒泡被终止，该监听器不会被触发。
+        event.emit(child, 'b1', null, true);
+        strictEqual(outstr, 'child0child-1');
 
-        // // 处理停止事件
-        // parent = { v: 0 };
-        // child = { v: 1, parent, __event_bubble_function__ };
-        // outstr = '';
+        // 处理停止事件
+        parent = { v: 0 };
+        child = { v: 1, parent, __event_bubble_function__ };
+        outstr = '';
 
-        // event.on(child, 'b2', (e) => { e.isStop = true; }, null, -1); // 新增优先级较低的监听器，并停止事件流。
-        // event.on(child, 'b2', () => { outstr += 'child0'; }, null, 0); // 该监听器将会被触发。
-        // event.on(child, 'b2', () => { outstr += 'child-1'; }, null, -2); // 事件被终止，该监听器优先级较低将不会被触发。
-        // event.on(parent, 'b2', () => { outstr += 'parent'; }); // 事件被终止，该监听器不会被触发。
-        // event.emit(child, 'b2', null, true);
-        // strictEqual(outstr, 'child0');
+        event.on(child, 'b2', (e) => { e.isStop = true; }, null, -1); // 新增优先级较低的监听器，并停止事件流。
+        event.on(child, 'b2', () => { outstr += 'child0'; }, null, 0); // 该监听器将会被触发。
+        event.on(child, 'b2', () => { outstr += 'child-1'; }, null, -2); // 事件被终止，该监听器优先级较低将不会被触发。
+        event.on(parent, 'b2', () => { outstr += 'parent'; }); // 事件被终止，该监听器不会被触发。
+        event.emit(child, 'b2', null, true);
+        strictEqual(outstr, 'child0');
     });
 
     it('emit bubbles Entity-Component-System', () =>
@@ -275,6 +275,7 @@ describe('FEvent', () =>
                 {
                     c.entity = entity;
                 });
+
                 return node;
             }
 
@@ -367,6 +368,7 @@ describe('FEvent', () =>
                 {
                     c.entity = entity;
                 });
+
                 return node;
             }
 

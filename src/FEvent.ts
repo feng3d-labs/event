@@ -39,6 +39,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getOrCreateEventEmitter(obj).once(type, listener, thisObject, priority);
+
         return this;
     }
 
@@ -101,6 +102,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getOrCreateEventEmitter(obj).on(type, listener, thisObject, priority, once);
+
         return this;
     }
 
@@ -116,6 +118,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getEventEmitter(obj)?.off(type, listener, thisObject);
+
         return this;
     }
 
@@ -126,6 +129,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getEventEmitter(obj)?.offAll(type);
+
         return this;
     }
 
@@ -142,6 +146,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getOrCreateEventEmitter(obj).onAny(listener, thisObject, priority, once);
+
         return this;
     }
 
@@ -156,6 +161,7 @@ export class FEvent
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
         EventEmitter.getEventEmitter(obj)?.offAny(listener, thisObject);
+
         return this;
     }
 
@@ -174,6 +180,7 @@ export class FEvent
             targetsIndex: -1,
             targetsBubblesIndex: -1,
         } as Event<T>;
+
         return e;
     }
 }
