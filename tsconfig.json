@@ -1,20 +1,31 @@
 {
     "compilerOptions": {
-        "target": "ES5",
-        "noImplicitAny": false,
+        "target": "ES2015",
+        "allowJs": false,
         "sourceMap": true,
-        "declarationMap": true,
-        "declaration": true,
-        "composite": true,
-        "lib": [
-            "ES2017",
-            "DOM"
-        ],
-        "outFile": "./dist/index.js",
+        "removeComments": false,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "baseUrl": "./",
+        "outDir": "./out",
+        "declaration": true
     },
-    "files": [
-        // 事件模块
-        "src/EventEmitter.ts",
-        "src/FEvent.ts",
-    ]
+    "exclude": [
+        "node_modules",
+        "**/dist/**",
+        "**/lib/**",
+        "**/out/**",
+        "**/tests/**",
+        "**/scripts/**",
+        "**/types/**",
+        "rollup.config.js"
+    ],
+    "ts-node": {
+        "files": true,
+        "compilerOptions": {
+            "esModuleInterop": true
+        }
+    }
 }
