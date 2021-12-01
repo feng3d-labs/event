@@ -2,9 +2,9 @@ import { IEvent, EventEmitter } from './EventEmitter';
 
 /**
  * 对象事件发射器。
- * 
+ *
  * 可以为任何对象甚至基础类型派发事件。
- * 
+ *
  * 可针对（除undefined、null、Symbol外）的任意对象（0, 1, true, false, "1", {}）派发事件
  */
 export class ObjectEmitter<O = any, T = any>
