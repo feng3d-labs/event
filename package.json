@@ -1,19 +1,26 @@
 {
   "name": "@feng3d/event",
-  "version": "0.3.8",
+  "version": "0.3.10",
   "description": "事件系统",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bundle": "dist/index.js",
+  "bundle:types": "dist/index.d.ts",
   "author": "feng",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist/*",
-    "build": "rimraf dist/* && rollup -c",
-    "watch": "rollup -c -w ",
+    "prebuild": "rimraf lib",
+    "prebundle": "rimraf dist",
+    "build": "tsc -b",
+    "build:w": "tsc -b -w",
+    "bundle": "rollup -c",
+    "bundle:w": "rollup -c -w ",
     "lint": "eslint --ext .js --ext .ts src test rollup.config.js --ignore-path .gitignore --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
     "test": "mocha",
-    "docs": "rimraf public && typedoc"
+    "docs": "rimraf public && typedoc",
+    "prepublish": "npm run build && npm run bundle",
+    "publish": "npm publish"
   },
   "repository": {
     "type": "git",
@@ -24,9 +31,12 @@
   },
   "files": [
     "dist/",
+    "lib",
+    "src",
     "readme"
   ],
   "devDependencies": {
+    "@types/node": "^16.11.7",
     "@types/mocha": "^8.2.3",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
