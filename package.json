@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/feng3d/watcher.git"
+    "url": "https://gitlab.com/feng3d/event.git"
   },
   "publishConfig": {
     "access": "public"
