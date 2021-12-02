@@ -1,10 +1,11 @@
 {
   "name": "@feng3d/event",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "description": "事件系统",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bundle": "dist/index.js",
+  "bundleName": "event",
   "bundle:types": "dist/index.d.ts",
   "author": "feng",
   "license": "MIT",
@@ -19,7 +20,7 @@
     "lintfix": "npm run lint -- --fix",
     "test": "mocha",
     "docs": "rimraf public && typedoc",
-    "prepublish": "npm run build && npm run bundle",
+    "publish:pre": "npm version patch && npm run build && npm run bundle",
     "publish": "git push && git push --tags"
   },
   "repository": {
