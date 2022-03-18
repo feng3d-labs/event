@@ -1,6 +1,6 @@
 {
   "name": "@feng3d/event",
-  "version": "0.3.17",
+  "version": "0.3.18",
   "description": "事件系统",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
