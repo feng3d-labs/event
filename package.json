@@ -20,8 +20,8 @@
     "lintfix": "npm run lint -- --fix",
     "test": "mocha",
     "docs": "rimraf public && typedoc",
-    "publish:pre": "npm version patch && npm run build && npm run bundle",
-    "publish": "git push && git push --tags"
+    "prepublish": "npm run build && npm run bundle",
+    "publish": "npm version patch && git push && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",
