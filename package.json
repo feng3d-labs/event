@@ -21,7 +21,7 @@
     "test": "mocha",
     "docs": "rimraf public && typedoc",
     "prepublish": "npm run build && npm run bundle",
-    "publish": "npm version patch && git push && git push --tags"
+    "prepublishOnly": "npm version patch && git push && git push --tags"
   },
   "repository": {
     "type": "git",
