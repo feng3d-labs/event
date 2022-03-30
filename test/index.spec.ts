@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable func-style */
 import { ok, strictEqual } from 'assert';
-import { anyEmitter, IEvent, EventEmitter } from '..';
+import { anyEmitter, IEvent, EventEmitter } from '../src';
 
 describe('anyEmitter', () =>
 {
