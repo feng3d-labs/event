@@ -100,7 +100,12 @@ async function main()
     results.push({
         input,
         external: standalone ? [] : external,
-        output: [{ file: path.join(basePath, types), format: 'es' }],
+        output: [{
+            file: path.join(basePath, types),
+            name: namespaces[pkg.name],
+            format: 'es',
+            footer: `export as namespace ${namespaces[pkg.name]};`
+        }],
         plugins: [
             json(),
             typescript(),
