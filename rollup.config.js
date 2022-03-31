@@ -45,8 +45,8 @@ async function main()
     const sourcemap = true;
     const results = [];
 
-    data.namespace = data.namespace || 'feng3d';
     const namespaces = {};
+    namespaces[pkg.name] = pkg.namespace || 'feng3d';
 
     let banner = [
         `/*!`,
