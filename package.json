@@ -18,7 +18,7 @@
     "lint": "eslint --ext .js --ext .ts src test rollup.config.js --ignore-path .gitignore --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
     "docs": "typedoc",
-    "release": "npm version patch && npm run build:prod && git push && git push --tags"
+    "release": "npm version patch && npm run build:prod && git push && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",
