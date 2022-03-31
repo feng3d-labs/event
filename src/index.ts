@@ -1,3 +1,4 @@
+export * from './AnyEmitter';
 export * from './EventEmitter';
-export * from './ObjectEmitter';
 export * from './GlobalEmitter';
+export * from './ObjectEmitter';
