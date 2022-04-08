@@ -183,7 +183,7 @@ describe('anyEmitter', () =>
         let out: IEvent<any> = null;
         let parent = { v: 0 };
         const __event_bubble_function__ = function __event_bubble_function__(this: any) { return [this.parent]; };
-        // feng3d.__event_bubble_function__
+        // __event_bubble_function__
         let child = { v: 1, parent, __event_bubble_function__ };
 
         anyEmitter.on(parent, 'b', (e) => { out = e; });
@@ -234,7 +234,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__(): any[]
             {
@@ -252,7 +252,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__()
             {
@@ -280,7 +280,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__()
             {
@@ -324,7 +324,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__(): any[]
             {
@@ -345,7 +345,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__()
             {
@@ -373,7 +373,7 @@ describe('anyEmitter', () =>
             }
 
             /**
-             * feng3d.__event_bubble_function__
+             * __event_bubble_function__
              */
             __event_bubble_function__()
             {
