@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable func-style */
 import { ok, strictEqual } from 'assert';
-import { anyEmitter, IEvent, EventEmitter } from '../src';
+import { anyEmitter, IEvent, EventEmitter, IEventTarget } from '../src';
 
 describe('anyEmitter', () =>
 {
@@ -182,9 +182,8 @@ describe('anyEmitter', () =>
         const data = { d: 0 };
         let out: IEvent<any> = null as any;
         let parent = { v: 0 };
-        const __event_bubble_function__ = function __event_bubble_function__(this: any) { return [this.parent]; };
-        // __event_bubble_function__
-        let child = { v: 1, parent, __event_bubble_function__ };
+        const getBubbleTargets = function getBubbleTargets(this: any) { return [this.parent]; };
+        let child = { v: 1, parent, getBubbleTargets };
 
         anyEmitter.on(parent, 'b', (e) => { out = e; });
         anyEmitter.emit(child, 'b', data, true);
@@ -199,7 +198,7 @@ describe('anyEmitter', () =>
 
         // 处理停止事件的冒泡
         parent = { v: 0 };
-        child = { v: 1, parent, __event_bubble_function__ };
+        child = { v: 1, parent, getBubbleTargets };
         let outstr = '';
 
         anyEmitter.on(child, 'b1', (e) => { e.isStopBubbles = true; }, null, -1); // 新增优先级较低的监听器，并停止冒泡行为。
@@ -211,7 +210,7 @@ describe('anyEmitter', () =>
 
         // 处理停止事件
         parent = { v: 0 };
-        child = { v: 1, parent, __event_bubble_function__ };
+        child = { v: 1, parent, getBubbleTargets };
         outstr = '';
 
         anyEmitter.on(child, 'b2', (e) => { e.isStop = true; }, null, -1); // 新增优先级较低的监听器，并停止事件流。
@@ -224,7 +223,7 @@ describe('anyEmitter', () =>
 
     it('emit bubbles Entity-Component-System', () =>
     {
-        class Component
+        class Component implements IEventTarget
         {
             name: string;
             entity: Entity;
@@ -233,16 +232,13 @@ describe('anyEmitter', () =>
                 this.name = name;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__(): any[]
+            getBubbleTargets(): any[]
             {
                 return [this.entity];
             }
         }
 
-        class Entity
+        class Entity implements IEventTarget
         {
             name: string;
             components: Component[];
@@ -251,10 +247,7 @@ describe('anyEmitter', () =>
                 this.name = name;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__()
+            getBubbleTargets()
             {
                 return this.components;
             }
@@ -279,10 +272,7 @@ describe('anyEmitter', () =>
                 return node;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__()
+            getBubbleTargets()
             {
                 return [this.entity as any].concat(this.entity.components, this.parent);
             }
@@ -313,7 +303,7 @@ describe('anyEmitter', () =>
             print: any;
         }
 
-        class Component<T extends ComponentEventMap = ComponentEventMap> extends EventEmitter<T>
+        class Component<T extends ComponentEventMap = ComponentEventMap> extends EventEmitter<T> implements IEventTarget
         {
             name: string;
             entity: Entity;
@@ -323,10 +313,7 @@ describe('anyEmitter', () =>
                 this.name = name;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__(): any[]
+            getBubbleTargets(): any[]
             {
                 return [this.entity];
             }
@@ -334,7 +321,7 @@ describe('anyEmitter', () =>
 
         type EntityEventMap = ComponentEventMap;
 
-        class Entity<T extends EntityEventMap = EntityEventMap> extends EventEmitter<T>
+        class Entity<T extends EntityEventMap = EntityEventMap> extends EventEmitter<T> implements IEventTarget
         {
             name: string;
             components: Component[];
@@ -344,10 +331,7 @@ describe('anyEmitter', () =>
                 this.name = name;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__()
+            getBubbleTargets()
             {
                 return this.components;
             }
@@ -372,10 +356,7 @@ describe('anyEmitter', () =>
                 return node;
             }
 
-            /**
-             * __event_bubble_function__
-             */
-            __event_bubble_function__()
+            getBubbleTargets()
             {
                 return [this.entity as any].concat(this.entity.components, this.parent);
             }

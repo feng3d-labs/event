@@ -1,4 +1,5 @@
 import { IEvent } from './IEvent';
+import { IEventTarget } from './IEventTarget';
 import { ListenerVO } from './ListenerVO';
 
 /**
@@ -9,25 +10,7 @@ const EVENT_KEY = '__event__';
 /**
  * 事件派发器代理的对象
  */
-const EVENT_EMITTER_TARGET = '__event_emitter_target__';
-
-/**
- * 事件冒泡函数名称常量，冒泡的对象需要定义该名称的函数。
- *
- * function __event_bubble_function__(): any[];
- *
- * var bubbleObject: { __event_bubble_function__: () => any[] }
- */
-const EVENT_BUBBLE_FUNCTION = '__event_bubble_function__';
-
-/**
- * 事件广播函数名称常量，广播的对象需要定义该名称的函数。
- *
- * function __event_bubble_function__(): any[];
- *
- * var bubbleObject: { __event_bubble_function__: () => any[] }
- */
-const EVENT_BROADCAST_FUNCTION = '__event_broadcast_function__';
+const emitterTargetMap = new Map<EventEmitter, IEventTarget>();
 
 /**
  * 事件派发器
@@ -75,7 +58,7 @@ export class EventEmitter<T = any>
         }
         console.assert(!EventEmitter.targetMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
         EventEmitter.targetMap.set(target, this);
-        this[EVENT_EMITTER_TARGET] = target;
+        emitterTargetMap.set(this, target);
     }
 
     /**
@@ -136,7 +119,7 @@ export class EventEmitter<T = any>
             e.handles = e.handles || [];
         }
 
-        const currentTarget = this[EVENT_EMITTER_TARGET];
+        const currentTarget = emitterTargetMap.get(this);
 
         if (e.targets.indexOf(currentTarget) !== -1)
         {
@@ -427,8 +410,9 @@ export class EventEmitter<T = any>
     protected handleEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
         // 设置目标
-        e.target = e.target || this[EVENT_EMITTER_TARGET];
-        e.currentTarget = this[EVENT_EMITTER_TARGET];
+        const eventTarget = emitterTargetMap.get(this);
+        e.target = e.target || eventTarget;
+        e.currentTarget = eventTarget;
         //
         const objectListener: ObjectListener = this[EVENT_KEY];
 
@@ -487,9 +471,10 @@ export class EventEmitter<T = any>
      */
     protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        if (typeof this[EVENT_EMITTER_TARGET]?.[EVENT_BUBBLE_FUNCTION] === 'function')
+        const eventTarget = emitterTargetMap.get(this);
+        if (typeof eventTarget?.getBubbleTargets === 'function')
         {
-            const bubbleTargets: any[] = this[EVENT_EMITTER_TARGET][EVENT_BUBBLE_FUNCTION]();
+            const bubbleTargets = eventTarget.getBubbleTargets();
 
             bubbleTargets.forEach((v) =>
             {
@@ -509,9 +494,10 @@ export class EventEmitter<T = any>
      */
     protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        if (typeof this[EVENT_EMITTER_TARGET]?.[EVENT_BROADCAST_FUNCTION] === 'function')
+        const eventTarget = emitterTargetMap.get(this);
+        if (typeof eventTarget?.getBroadcastTargets === 'function')
         {
-            const broadcastTargets: any[] = this[EVENT_EMITTER_TARGET][EVENT_BROADCAST_FUNCTION]();
+            const broadcastTargets = eventTarget.getBroadcastTargets();
 
             broadcastTargets.forEach((v) =>
             {
