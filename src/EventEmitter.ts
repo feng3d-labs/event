@@ -128,23 +128,16 @@ export class EventEmitter<T = any>
         {
             return false;
         }
-        e.targets.push(currentTarget);
 
         // 处理事件
         const eventEmitter = EventEmitter.getOrCreateEventEmitter(currentTarget);
         eventEmitter.handleEvent(e);
 
         // 处理冒泡
-        if (e.bubbles && !e.isStopBubbles)
-        {
-            eventEmitter.handelEventBubbles(e);
-        }
+        eventEmitter.handelEventBubbles(e);
 
         // 处理广播
-        if (e.broadcast && !e.isStopBroadcast)
-        {
-            eventEmitter.handelEventBroadcast(e);
-        }
+        eventEmitter.handelEventBroadcast(e);
 
         return e.handles.length > 0; // 当处理次数大于0时表示已被处理。
     }
@@ -416,6 +409,7 @@ export class EventEmitter<T = any>
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         e.target = e.target || eventTarget;
         e.currentTarget = eventTarget;
+        e.targets.push(eventTarget);
         //
         const objectListener = EventEmitter.emitterListenerMap.get(this);
 
@@ -474,18 +468,21 @@ export class EventEmitter<T = any>
      */
     protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
     {
+        if (!e.bubbles || e.isStopBubbles || e.isStop) return;
+
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBubbleTargets === 'function')
         {
             const bubbleTargets = eventTarget.getBubbleTargets();
             bubbleTargets?.forEach((v) =>
             {
-                if (v !== undefined && e.targets.indexOf(v) === -1)
-                {
-                    // 传递事件
-                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                    eventEmitter.emitEvent(e);
-                }
+                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+
+                // 处理事件
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                eventEmitter.handleEvent(e);
+                // 继续冒泡
+                eventEmitter.handelEventBubbles(e);
             });
         }
     }
@@ -496,18 +493,21 @@ export class EventEmitter<T = any>
      */
     protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
     {
+        if (!e.broadcast || e.isStopBroadcast || e.isStop) return;
+
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBroadcastTargets === 'function')
         {
             const broadcastTargets = eventTarget.getBroadcastTargets();
             broadcastTargets?.forEach((v) =>
             {
-                if (v !== undefined && e.targets.indexOf(v) === -1)
-                {
-                    // 传递事件
-                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                    eventEmitter.emitEvent(e);
-                }
+                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+
+                // 处理事件
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                eventEmitter.handleEvent(e);
+                // 继续广播
+                eventEmitter.handelEventBroadcast(e);
             });
         }
     }

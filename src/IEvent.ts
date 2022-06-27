@@ -3,7 +3,7 @@ import { ListenerItem } from './ListenerItem';
 /**
  * 事件
  */
-export interface IEvent<T>
+export interface IEvent<T = any>
 {
     /**
      * 事件的类型。类型区分大小写。
