@@ -1,4 +1,5 @@
-import { IEvent, EventEmitter } from './EventEmitter';
+import { EventEmitter } from './EventEmitter';
+import { IEvent } from './IEvent';
 
 /**
  * 任意事件发射器。
