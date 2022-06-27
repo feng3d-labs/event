@@ -21,6 +21,15 @@ const EVENT_EMITTER_TARGET = '__event_emitter_target__';
 const EVENT_BUBBLE_FUNCTION = '__event_bubble_function__';
 
 /**
+ * 事件广播函数名称常量，广播的对象需要定义该名称的函数。
+ *
+ * function __event_bubble_function__(): any[];
+ *
+ * var bubbleObject: { __event_bubble_function__: () => any[] }
+ */
+const EVENT_BROADCAST_FUNCTION = '__event_broadcast_function__';
+
+/**
  * 事件派发器
  */
 export class EventEmitter<T = any>
@@ -91,6 +100,7 @@ export class EventEmitter<T = any>
 
     /**
      * 监听一次事件后将会被移除
+     *
      * @param type						事件的类型。
      * @param listener					处理事件的侦听器函数。
      * @param thisObject                listener函数作用域
@@ -109,14 +119,12 @@ export class EventEmitter<T = any>
      * 当事件重复流向一个对象时将不会被处理。
      *
      * @param e   事件对象
-     * @returns 返回事件是否被该对象处理
+     * @returns 返回事件是否被处理
      */
     emitEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        // 是否为初次派发
-        const isEventStart = !e.target;
-
-        if (isEventStart)
+        // 初次派发时初始化默认值
+        if (!e.target)
         {
             // 初始化事件
             e.target = e.target || null;
@@ -126,56 +134,44 @@ export class EventEmitter<T = any>
             e.isStopBroadcast = e.isStopBroadcast || false;
             e.targets = e.targets || [];
             e.handles = e.handles || [];
-            e.targetsIndex = e.targetsIndex || 0;
-            e.targetsBubblesIndex = e.targetsBubblesIndex || 0;
         }
 
-        const targets = e.targets;
+        const currentTarget = this[EVENT_EMITTER_TARGET];
 
-        if (targets.indexOf(this[EVENT_EMITTER_TARGET]) !== -1)
+        if (e.targets.indexOf(currentTarget) !== -1)
         {
             return false;
         }
-        targets.push(this[EVENT_EMITTER_TARGET]);
+        e.targets.push(currentTarget);
 
-        //
-        let index = e.targetsIndex;
+        // 处理事件
+        const eventEmitter = EventEmitter.getOrCreateEventEmitter(currentTarget);
+        eventEmitter.handleEvent(e);
 
-        while (targets.length > index)
+        // 处理冒泡
+        if (e.bubbles && !e.isStopBubbles)
         {
-            const n = targets.length;
-            index = n;
-            // 派发事件
-            while (e.targetsIndex < n)
-            {
-                const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsIndex++]);
-                // 处理事件
-                eventEmitter.handleEvent(e);
-            }
-            if (isEventStart) // 统一在派发事件入口处理冒泡
-            {
-                // 处理冒泡
-                if (e.bubbles && !e.isStopBubbles)
-                {
-                    while (e.targetsBubblesIndex < n)
-                    {
-                        const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsBubblesIndex++]);
-                        // 处理事件冒泡
-                        eventEmitter.handelEventBubbles(e);
-                    }
-                }
-            }
+            eventEmitter.handelEventBubbles(e);
         }
 
-        return true;
+        // 处理广播
+        if (e.broadcast && !e.isStopBroadcast)
+        {
+            eventEmitter.handelEventBroadcast(e);
+        }
+
+        return e.handles.length > 0; // 当处理次数大于0时表示已被处理。
     }
 
     /**
      * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 Event 对象。
+     *
      * @param type                      事件的类型。类型区分大小写。
      * @param data                      事件携带的自定义数据。
-     * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
-     * @param broadcast                 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
+     * @param bubbles                   表示事件是否为冒泡到上级对象中。
+     * @param broadcast                 表示事件是否为广播到下级对象中。
+     *
+     * @returns 返回发出后的事件。
      */
     emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false, broadcast = false)
     {
@@ -186,7 +182,35 @@ export class EventEmitter<T = any>
             targetsBubblesIndex: 0,
         } as IEvent<T[K]>;
 
-        return this.emitEvent(e);
+        this.emitEvent(e);
+
+        return e;
+    }
+
+    /**
+     * 将事件广播到下级对象中。
+     *
+     * @param type                      事件的类型。类型区分大小写。
+     * @param data                      事件携带的自定义数据。
+     *
+     * @returns 返回广播后的事件。
+     */
+    broadcast<K extends keyof T & string>(type: K, data?: T[K])
+    {
+        return this.emit(type, data, false, true);
+    }
+
+    /**
+     * 将事件冒泡到上级对象中。
+     *
+     * @param type                      事件的类型。类型区分大小写。
+     * @param data                      事件携带的自定义数据。
+     *
+     * @returns 返回冒泡后的事件。
+     */
+    bubbles<K extends keyof T & string>(type: K, data?: T[K])
+    {
+        return this.emit(type, data, true, false);
     }
 
     /**
@@ -471,7 +495,31 @@ export class EventEmitter<T = any>
             {
                 if (v !== undefined && e.targets.indexOf(v) === -1)
                 {
-                    e.targets.push(v);
+                    // 传递事件
+                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                    eventEmitter.emitEvent(e);
+                }
+            });
+        }
+    }
+
+    /**
+     * 处理事件广播
+     * @param e 事件
+     */
+    protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
+    {
+        if (typeof this[EVENT_EMITTER_TARGET]?.[EVENT_BROADCAST_FUNCTION] === 'function')
+        {
+            const broadcastTargets: any[] = this[EVENT_EMITTER_TARGET][EVENT_BROADCAST_FUNCTION]();
+
+            broadcastTargets.forEach((v) =>
+            {
+                if (v !== undefined && e.targets.indexOf(v) === -1)
+                {
+                    // 传递事件
+                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                    eventEmitter.emitEvent(e);
                 }
             });
         }

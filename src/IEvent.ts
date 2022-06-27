@@ -60,16 +60,6 @@ export interface IEvent<T>
     targets: any[];
 
     /**
-     * 当前事件流到targets的索引
-     */
-    targetsIndex: number;
-
-    /**
-     * 当前事件冒泡流到targets的索引
-     */
-    targetsBubblesIndex: number;
-
-    /**
      * 处理列表
      */
     handles: ListenerVO[];
