@@ -8,16 +8,19 @@ import { ListenerVO } from './ListenerVO';
 const EVENT_KEY = '__event__';
 
 /**
- * 事件派发器代理的对象
- */
-const emitterTargetMap = new Map<EventEmitter, IEventTarget>();
-
-/**
  * 事件派发器
  */
 export class EventEmitter<T = any>
 {
-    private static targetMap = new Map<any, EventEmitter>();
+    /**
+     * 目标与派发器映射。
+     */
+    private static targetEmitterMap = new Map<any, EventEmitter>();
+
+    /**
+     * 派发器与目标映射。
+     */
+    private static emitterTargetMap = new Map<EventEmitter, IEventTarget>();
 
     /**
      * 获取事件派发器
@@ -31,7 +34,7 @@ export class EventEmitter<T = any>
             return target;
         }
 
-        return this.targetMap.get(target);
+        return this.targetEmitterMap.get(target);
     }
 
     /**
@@ -56,9 +59,9 @@ export class EventEmitter<T = any>
         {
             target = this;
         }
-        console.assert(!EventEmitter.targetMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
-        EventEmitter.targetMap.set(target, this);
-        emitterTargetMap.set(this, target);
+        console.assert(!EventEmitter.targetEmitterMap.has(target), `同一个 ${target} 对象无法对应两个 EventEmitter！`);
+        EventEmitter.targetEmitterMap.set(target, this);
+        EventEmitter.emitterTargetMap.set(this, target);
     }
 
     /**
@@ -119,7 +122,7 @@ export class EventEmitter<T = any>
             e.handles = e.handles || [];
         }
 
-        const currentTarget = emitterTargetMap.get(this);
+        const currentTarget = EventEmitter.emitterTargetMap.get(this);
 
         if (e.targets.indexOf(currentTarget) !== -1)
         {
@@ -410,7 +413,7 @@ export class EventEmitter<T = any>
     protected handleEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
         // 设置目标
-        const eventTarget = emitterTargetMap.get(this);
+        const eventTarget = EventEmitter.emitterTargetMap.get(this);
         e.target = e.target || eventTarget;
         e.currentTarget = eventTarget;
         //
@@ -471,7 +474,7 @@ export class EventEmitter<T = any>
      */
     protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        const eventTarget = emitterTargetMap.get(this);
+        const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBubbleTargets === 'function')
         {
             const bubbleTargets = eventTarget.getBubbleTargets();
@@ -494,7 +497,7 @@ export class EventEmitter<T = any>
      */
     protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        const eventTarget = emitterTargetMap.get(this);
+        const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBroadcastTargets === 'function')
         {
             const broadcastTargets = eventTarget.getBroadcastTargets();
