@@ -478,8 +478,7 @@ export class EventEmitter<T = any>
         if (typeof eventTarget?.getBubbleTargets === 'function')
         {
             const bubbleTargets = eventTarget.getBubbleTargets();
-
-            bubbleTargets.forEach((v) =>
+            bubbleTargets?.forEach((v) =>
             {
                 if (v !== undefined && e.targets.indexOf(v) === -1)
                 {
@@ -501,8 +500,7 @@ export class EventEmitter<T = any>
         if (typeof eventTarget?.getBroadcastTargets === 'function')
         {
             const broadcastTargets = eventTarget.getBroadcastTargets();
-
-            broadcastTargets.forEach((v) =>
+            broadcastTargets?.forEach((v) =>
             {
                 if (v !== undefined && e.targets.indexOf(v) === -1)
                 {
