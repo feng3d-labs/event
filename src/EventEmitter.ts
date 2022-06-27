@@ -120,6 +120,7 @@ export class EventEmitter<T = any>
             e.currentTarget = e.currentTarget || null;
             e.isStop = e.isStop || false;
             e.isStopBubbles = e.isStopBubbles || false;
+            e.isStopBroadcast = e.isStopBroadcast || false;
             e.targets = e.targets || [];
             e.handles = e.handles || [];
             e.targetsIndex = e.targetsIndex || 0;
@@ -140,15 +141,14 @@ export class EventEmitter<T = any>
         while (targets.length > index)
         {
             const n = targets.length;
+            index = n;
             // 派发事件
-
             while (e.targetsIndex < n)
             {
                 const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsIndex++]);
-
-                eventEmitter.handleEvent(e); // 传递到其它对象中去，将会增加 targets 的长度。
+                // 处理事件
+                eventEmitter.handleEvent(e);
             }
-            index = e.targetsIndex;
             if (isEventStart) // 统一在派发事件入口处理冒泡
             {
                 // 处理冒泡
@@ -157,10 +157,9 @@ export class EventEmitter<T = any>
                     while (e.targetsBubblesIndex < n)
                     {
                         const eventEmitter = EventEmitter.getOrCreateEventEmitter(targets[e.targetsBubblesIndex++]);
-
-                        eventEmitter.handelEventBubbles(e); // 冒泡到其它对象中去，将会增加 targets 的长度。
+                        // 处理事件冒泡
+                        eventEmitter.handelEventBubbles(e);
                     }
-                    index = e.targetsBubblesIndex;
                 }
             }
         }
@@ -173,12 +172,13 @@ export class EventEmitter<T = any>
      * @param type                      事件的类型。类型区分大小写。
      * @param data                      事件携带的自定义数据。
      * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+     * @param broadcast                 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
      */
-    emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false)
+    emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false, broadcast = false)
     {
         const e = {
-            type, data, bubbles, target: null,
-            currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [],
+            type, data, bubbles, broadcast, target: null,
+            currentTarget: null, isStop: false, isStopBubbles: false, isStopBroadcast: false, targets: [], handles: [],
             targetsIndex: 0,
             targetsBubblesIndex: 0,
         } as IEvent<T[K]>;
@@ -508,13 +508,27 @@ export interface IEvent<T>
 
     /**
      * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+     *
+     * 如果该事件为冒泡事件，则事件将会向上传递给父节点。
      */
-    bubbles: boolean;
+    bubbles?: boolean;
 
     /**
      * 是否停止冒泡
      */
     isStopBubbles?: boolean;
+
+    /**
+     * 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
+     *
+     * 如果该事件为广播事件，则事件将会传递给所有的子节点。
+     */
+    broadcast?: boolean;
+
+    /**
+     * 是否停止广播
+     */
+    isStopBroadcast?: boolean;
 
     /**
      * 是否停止处理事件监听器

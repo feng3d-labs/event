@@ -175,12 +175,13 @@ export class AnyEmitter<O = any, T = any>
      * @param type                      事件的类型。类型区分大小写。
      * @param data                      事件携带的自定义数据。
      * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+     * @param broadcast                 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
      */
-    makeEvent<K extends keyof T & string>(type: K, data: T, bubbles = false): IEvent<T>
+    makeEvent<K extends keyof T & string>(type: K, data: T, bubbles = false, broadcast = false): IEvent<T>
     {
         const e = {
-            type, data, bubbles, target: null,
-            currentTarget: null, isStop: false, isStopBubbles: false, targets: [], handles: [],
+            type, data, bubbles, broadcast, target: null,
+            currentTarget: null, isStop: false, isStopBubbles: false, isStopBroadcast: false, targets: [], handles: [],
             targetsIndex: -1,
             targetsBubblesIndex: -1,
         } as IEvent<T>;

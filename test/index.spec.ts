@@ -180,7 +180,7 @@ describe('anyEmitter', () =>
     {
         // dispatch 携带数据 冒泡
         const data = { d: 0 };
-        let out: IEvent<any> = null;
+        let out: IEvent<any> = null as any;
         let parent = { v: 0 };
         const __event_bubble_function__ = function __event_bubble_function__(this: any) { return [this.parent]; };
         // __event_bubble_function__
@@ -293,9 +293,9 @@ describe('anyEmitter', () =>
 
         nodeb.parent = nodea;
 
-        const result = [];
+        const result: string[] = [];
 
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: { name: string }) =>
         {
             anyEmitter.on(v, 'print', () => { result.push(v.name); });
         });
@@ -386,13 +386,13 @@ describe('anyEmitter', () =>
 
         nodeb.parent = nodea;
 
-        const result = [];
+        const result: string[] = [];
         const listenerFunc = function listenerFunc() { result.push(this.name); };
 
         // ---------- 使用 event 派发事件。
 
         // 首次添加事件
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             anyEmitter.on(v, 'print', listenerFunc, v);
         });
@@ -405,7 +405,7 @@ describe('anyEmitter', () =>
 
         // 再次添加事件，重复添加事件将被忽略
         result.length = 0;
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             anyEmitter.on(v, 'print', listenerFunc, v);
         });
@@ -415,7 +415,7 @@ describe('anyEmitter', () =>
 
         // 移除事件
         result.length = 0;
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             anyEmitter.off(v, 'print', listenerFunc, v);
         });
@@ -425,7 +425,7 @@ describe('anyEmitter', () =>
 
         // ---------- 使用 EventEmitter 派发事件。
         result.length = 0;
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             v.on('print', listenerFunc, v);
         });
@@ -436,7 +436,7 @@ describe('anyEmitter', () =>
 
         //
         result.length = 0;
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             v.on('print', listenerFunc, v);
         });
@@ -448,7 +448,7 @@ describe('anyEmitter', () =>
 
         //
         result.length = 0;
-        [].concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
+        ([] as any[]).concat(nodea.entity, nodea.entity.components, nodeb.entity, nodeb.entity.components).forEach((v: Component) =>
         {
             v.on('print', listenerFunc, v);
         });
