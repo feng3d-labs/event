@@ -3,7 +3,7 @@ import { EventEmitter, IEventTarget } from '../src';
 
 describe('EventEmitter', () =>
 {
-    it('冒泡测试', () =>
+    it('broadcast & bubbles', () =>
     {
         class Node extends EventEmitter implements IEventTarget
         {
@@ -38,8 +38,24 @@ describe('EventEmitter', () =>
         child0.on('event0', () => { result.push('child0'); });
         child1.on('event0', () => { result.push('child1'); });
 
+        // 测试广播
         result.length = 0;
         child0.broadcast('event0');
         deepEqual(result, ['child0']);
+
+        // 测试广播
+        result.length = 0;
+        parent.broadcast('event0');
+        deepEqual(result, ['parent', 'child0', 'child1']);
+
+        // 测试冒泡
+        result.length = 0;
+        child0.bubbles('event0');
+        deepEqual(result, ['child0', 'parent']);
+
+        // 测试冒泡
+        result.length = 0;
+        parent.bubbles('event0');
+        deepEqual(result, ['parent']);
     });
 });
