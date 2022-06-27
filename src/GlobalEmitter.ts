@@ -1,7 +1,7 @@
 import { EventEmitter } from './EventEmitter';
 
 /**
- * 全局事件
+ * 全局事件发射器。
  */
 export const globalEmitter = new EventEmitter<MixinsGlobalEvents>();
 

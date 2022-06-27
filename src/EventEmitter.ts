@@ -1,29 +1,29 @@
 import { IEvent } from './IEvent';
 import { IEventTarget } from './IEventTarget';
-import { ListenerVO } from './ListenerVO';
+import { ListenerItem } from './ListenerItem';
 
 /**
- * 事件属性名称常量
- */
-const EVENT_KEY = '__event__';
-
-/**
- * 事件派发器
+ * 事件发射器
  */
 export class EventEmitter<T = any>
 {
     /**
-     * 目标与派发器映射。
+     * 目标与发射器映射。
      */
     private static targetEmitterMap = new Map<any, EventEmitter>();
 
     /**
-     * 派发器与目标映射。
+     * 发射器与目标映射。
      */
     private static emitterTargetMap = new Map<EventEmitter, IEventTarget>();
 
     /**
-     * 获取事件派发器
+     * 发射器与监听器映射。
+     */
+    private static emitterListenerMap = new Map<EventEmitter, ObjectListener>();
+
+    /**
+     * 获取事件发射器
      * @param target
      */
     static getEventEmitter(target: any)
@@ -38,7 +38,7 @@ export class EventEmitter<T = any>
     }
 
     /**
-     * 获取事件派发器，当没有找到对应派发器时，返回新建的事件派发器。
+     * 获取事件发射器，当没有找到对应发射器时，返回新建的事件发射器。
      * @param target
      */
     static getOrCreateEventEmitter(target: any)
@@ -69,7 +69,7 @@ export class EventEmitter<T = any>
      */
     eventNames<K extends keyof T & string>()
     {
-        const names = Object.keys(this[EVENT_KEY]) as K[];
+        const names = Object.keys(EventEmitter.emitterListenerMap.get(this)) as K[];
 
         return names;
     }
@@ -81,7 +81,7 @@ export class EventEmitter<T = any>
      */
     listenerCount<K extends keyof T & string>(type: K): number
     {
-        return this[EVENT_KEY]?.[type]?.length || 0;
+        return EventEmitter.emitterListenerMap.get(this)?.[type]?.length || 0;
     }
 
     /**
@@ -100,7 +100,7 @@ export class EventEmitter<T = any>
     }
 
     /**
-     * 派发事件
+     * 发射事件
      *
      * 当事件重复流向一个对象时将不会被处理。
      *
@@ -109,7 +109,7 @@ export class EventEmitter<T = any>
      */
     emitEvent<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        // 初次派发时初始化默认值
+        // 初次发射时初始化默认值
         if (!e.target)
         {
             // 初始化事件
@@ -223,16 +223,16 @@ export class EventEmitter<T = any>
     {
         if (listener === null) return this;
 
-        let objectListener: ObjectListener = this[EVENT_KEY];
+        let objectListener = EventEmitter.emitterListenerMap.get(this);
 
         if (!objectListener)
         {
             objectListener = { __anyEventType__: [] };
-            this[EVENT_KEY] = objectListener;
+            EventEmitter.emitterListenerMap.set(this, objectListener);
         }
 
         thisObject = thisObject || this;
-        const listeners: ListenerVO[] = objectListener[type] = objectListener[type] || [];
+        const listeners: ListenerItem[] = objectListener[type] = objectListener[type] || [];
 
         let i = 0;
 
@@ -271,12 +271,12 @@ export class EventEmitter<T = any>
     {
         if (!type)
         {
-            this[EVENT_KEY] = undefined;
+            EventEmitter.emitterListenerMap.delete(this);
 
             return this;
         }
 
-        const objectListener: ObjectListener = this[EVENT_KEY];
+        const objectListener = EventEmitter.emitterListenerMap.get(this);
 
         if (!objectListener) return this;
 
@@ -333,15 +333,15 @@ export class EventEmitter<T = any>
      */
     onAny<K extends keyof T & string>(listener: (event: IEvent<T[K]>) => void, thisObject?: any, priority = 0, once = false)
     {
-        let objectListener: ObjectListener = this[EVENT_KEY];
+        let objectListener = EventEmitter.emitterListenerMap.get(this);
 
         if (!objectListener)
         {
             objectListener = { __anyEventType__: [] };
-            this[EVENT_KEY] = objectListener;
+            EventEmitter.emitterListenerMap.set(this, objectListener);
         }
 
-        const listeners: ListenerVO[] = objectListener.__anyEventType__;
+        const listeners = objectListener.__anyEventType__;
 
         let i = 0;
 
@@ -377,7 +377,7 @@ export class EventEmitter<T = any>
      */
     offAny<K extends keyof T & string>(listener?: (event: IEvent<T[K]>) => void, thisObject?: any)
     {
-        const objectListener: ObjectListener = this[EVENT_KEY];
+        const objectListener = EventEmitter.emitterListenerMap.get(this);
 
         if (!listener)
         {
@@ -417,11 +417,11 @@ export class EventEmitter<T = any>
         e.target = e.target || eventTarget;
         e.currentTarget = eventTarget;
         //
-        const objectListener: ObjectListener = this[EVENT_KEY];
+        const objectListener = EventEmitter.emitterListenerMap.get(this);
 
         if (!objectListener) return;
 
-        let listeners: ListenerVO[] = objectListener[e.type];
+        let listeners = objectListener[e.type];
 
         if (listeners)
         {
@@ -517,6 +517,6 @@ export class EventEmitter<T = any>
 
 interface ObjectListener
 {
-    [type: string]: ListenerVO[];
-    __anyEventType__: ListenerVO[];
+    [type: string]: ListenerItem[];
+    __anyEventType__: ListenerItem[];
 }

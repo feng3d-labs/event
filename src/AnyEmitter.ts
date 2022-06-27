@@ -4,9 +4,9 @@ import { IEvent } from './IEvent';
 /**
  * 任意事件发射器。
  *
- * 可以为任何对象甚至基础类型派发事件。
+ * 可以为任何对象甚至基础类型发射事件。
  *
- * 可针对（除undefined、null、Symbol外）的任意对象（0, 1, true, false, "1", {}）派发事件
+ * 可针对（除undefined、null、Symbol外）的任意对象（0, 1, true, false, "1", {}）发射事件
  */
 export class AnyEmitter<O = any, T = any>
 {
@@ -49,7 +49,7 @@ export class AnyEmitter<O = any, T = any>
     }
 
     /**
-     * 派发事件
+     * 发射事件
      *
      * 当事件重复流向一个对象时将不会被处理。
      *

@@ -1,9 +1,9 @@
 import { IEvent } from './IEvent';
 
 /**
- * 监听数据
+ * 监听器数据项。
  */
-export interface ListenerVO
+export interface ListenerItem
 {
     /**
      * 监听函数

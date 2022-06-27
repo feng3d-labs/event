@@ -1,4 +1,4 @@
-import { ListenerVO } from './ListenerVO';
+import { ListenerItem } from './ListenerItem';
 
 /**
  * 事件
@@ -60,7 +60,7 @@ export interface IEvent<T>
     targets: any[];
 
     /**
-     * 处理列表
+     * 已处理的监听器列表。
      */
-    handles: ListenerVO[];
+    handles: ListenerItem[];
 }
