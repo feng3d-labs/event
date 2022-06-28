@@ -1,6 +1,6 @@
 import { IEvent } from './IEvent';
 import { IEventTarget } from './IEventTarget';
-import { EventListener } from './EventListener';
+import { IEventListener } from './IEventListener';
 
 /**
  * 事件发射器
@@ -228,7 +228,7 @@ export class EventEmitter<T = any>
         }
 
         thisObject = thisObject || this;
-        const listeners: EventListener[] = objectListener[type] = objectListener[type] || [];
+        const listeners: IEventListener[] = objectListener[type] = objectListener[type] || [];
 
         let i = 0;
 
@@ -404,7 +404,7 @@ export class EventEmitter<T = any>
 
         let listeners = objectListener[e.type];
 
-        const callListeners: EventListener[] = [];
+        const callListeners: IEventListener[] = [];
         if (listeners)
         {
             // 遍历调用事件回调函数
@@ -525,6 +525,6 @@ export class EventEmitter<T = any>
 
 interface ObjectListener
 {
-    [type: string]: EventListener[];
-    __anyEventType__: EventListener[];
+    [type: string]: IEventListener[];
+    __anyEventType__: IEventListener[];
 }
