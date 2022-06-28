@@ -120,13 +120,13 @@ export class EventEmitter<T = any>
         const eventEmitter = EventEmitter.getOrCreateEventEmitter(currentTarget);
         eventEmitter.handleEvent(event);
 
-        // 向平级分享
+        // 向平级分享事件
         eventEmitter.handelEventShare(event);
 
-        // 向上级报告
+        // 向上级报告事件
         eventEmitter.handelEventBubbles(event);
 
-        // 向下级广播
+        // 向下级广播事件
         eventEmitter.handelEventBroadcast(event);
 
         return event; // 当处理次数大于0时表示已被处理。
@@ -445,12 +445,13 @@ export class EventEmitter<T = any>
     }
 
     /**
-     * 平级分享事件
-     * @param e 事件
+     * 向平级分享事件
+     *
+     * @param event 事件
      */
-    protected handelEventShare<K extends keyof T & string>(e: IEvent<T[K]>)
+    protected handelEventShare<K extends keyof T & string>(event: IEvent<T[K]>)
     {
-        if (!e.share || e.isStopShare || e.isStop || e.isStopTransmit) return;
+        if (!event.share || event.isStopShare || event.isStop || event.isStopTransmit) return;
 
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getShareTargets === 'function')
@@ -458,24 +459,25 @@ export class EventEmitter<T = any>
             const bubbleTargets = eventTarget.getShareTargets();
             bubbleTargets?.forEach((v) =>
             {
-                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+                if (v === undefined || event.targets.indexOf(v) !== -1) return;
 
                 // 处理事件
                 const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                eventEmitter.handleEvent(e);
+                eventEmitter.handleEvent(event);
                 // 继续分享事件
-                eventEmitter.handelEventShare(e);
+                eventEmitter.handelEventShare(event);
             });
         }
     }
 
     /**
-     * 处理事件冒泡
-     * @param e 事件
+     * 向上级报告事件
+     *
+     * @param event 事件
      */
-    protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
+    protected handelEventBubbles<K extends keyof T & string>(event: IEvent<T[K]>)
     {
-        if (!e.bubbles || e.isStopBubbles || e.isStop || e.isStopTransmit) return;
+        if (!event.bubbles || event.isStopBubbles || event.isStop || event.isStopTransmit) return;
 
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBubbleTargets === 'function')
@@ -483,24 +485,27 @@ export class EventEmitter<T = any>
             const bubbleTargets = eventTarget.getBubbleTargets();
             bubbleTargets?.forEach((v) =>
             {
-                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+                if (v === undefined || event.targets.indexOf(v) !== -1) return;
 
                 // 处理事件
                 const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                eventEmitter.handleEvent(e);
-                // 继续冒泡
-                eventEmitter.handelEventBubbles(e);
+                eventEmitter.handleEvent(event);
+                // 向平级分享事件
+                eventEmitter.handelEventShare(event);
+                // 向上级报告事件
+                eventEmitter.handelEventBubbles(event);
             });
         }
     }
 
     /**
-     * 处理事件广播
-     * @param e 事件
+     * 向下级广播事件
+     * 
+     * @param event 事件
      */
-    protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
+    protected handelEventBroadcast<K extends keyof T & string>(event: IEvent<T[K]>)
     {
-        if (!e.broadcast || e.isStopBroadcast || e.isStop || e.isStopTransmit) return;
+        if (!event.broadcast || event.isStopBroadcast || event.isStop || event.isStopTransmit) return;
 
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBroadcastTargets === 'function')
@@ -508,13 +513,15 @@ export class EventEmitter<T = any>
             const broadcastTargets = eventTarget.getBroadcastTargets();
             broadcastTargets?.forEach((v) =>
             {
-                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+                if (v === undefined || event.targets.indexOf(v) !== -1) return;
 
                 // 处理事件
                 const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                eventEmitter.handleEvent(e);
-                // 继续广播
-                eventEmitter.handelEventBroadcast(e);
+                eventEmitter.handleEvent(event);
+                // 向平级分享事件
+                eventEmitter.handelEventShare(event);
+                // 继续向下级广播事件
+                eventEmitter.handelEventBroadcast(event);
             });
         }
     }

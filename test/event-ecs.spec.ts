@@ -20,6 +20,8 @@ class Component extends EventEmitter<EntityEventMap> implements IEventTarget
     {
         super();
         this.name = name;
+        // 输出名称
+        this.on('print', listenerFunc, this);
     }
 
     /**
@@ -43,6 +45,8 @@ class Entity extends EventEmitter<EntityEventMap> implements IEventTarget
     {
         super();
         this.name = name;
+        // 输出名称
+        this.on('print', listenerFunc, this);
     }
 
     /**
@@ -129,6 +133,11 @@ function stop(event: IEvent<any>)
     event.isStop = true;
 }
 
+function stopTransmit(event: IEvent<any>)
+{
+    event.isStopTransmit = true;
+}
+
 // 停止冒泡
 function stopBubbles(event: IEvent<any>)
 {
@@ -143,126 +152,174 @@ function stopBroadcast(event: IEvent<any>)
 
 describe('Entity extends EventEmitter', () =>
 {
-    it('发射事件', () =>
+    it('emit bubbles 冒泡', () =>
     {
-        // 首次添加事件
-        ([] as Entity[]).concat(grandfather.entity, parent.entity, brother.entity, self.entity, child0.entity, child1.entity).forEach((v: Entity) =>
-        {
-            v.on('print', listenerFunc, v);
-        });
-
+        // 冒泡
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true);// 冒泡
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather'], result);
-        deepEqual(resultEvent.handles.length, 3);
-        deepEqual(resultEvent.targets.length, 3);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+        ], result);
+        deepEqual(resultEvent.handles.length, 12);
+        deepEqual(resultEvent.targets.length, 12);
         deepEqual(resultEvent.target, self.entity);
+    });
 
-        // 再次添加事件，重复添加事件将被忽略
-        ([] as Entity[]).concat(grandfather.entity, parent.entity, brother.entity, self.entity, child0.entity, child1.entity).forEach((v: Entity) =>
-        {
-            v.on('print', listenerFunc, v);
-        });
-
+    it('emit broadcast 广播', () =>
+    {
+        // 广播
         result.length = 0;
         resultEvent = self.entity.emit('print', null, false, true);
-        deepEqual(['Entity-self', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
     });
 
-    it('同时冒泡与广播', () =>
+    it('emit 同时冒泡与广播', () =>
     {
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-
-        // 移除事件
-        ([] as Entity[]).concat(grandfather.entity, parent.entity, brother.entity, self.entity, child0.entity, child1.entity).forEach((v: Entity) =>
-        {
-            v.off('print', listenerFunc, v);
-        });
-
-        result.length = 0;
-        resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(result.join(','), '');
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
     });
 
-    it('冒泡事件 bubbles', () =>
+    it('bubbles 冒泡事件', () =>
     {
-        ([] as Entity[]).concat(grandfather.entity, parent.entity, brother.entity, self.entity, child0.entity, child1.entity).forEach((v: Entity) =>
-        {
-            v.on('print', listenerFunc, v);
-        });
-
         result.length = 0;
         resultEvent = self.entity.bubbles('print', null);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather'].join(','), result.join(','));
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+        ], result);
     });
 
-    it('广播事件 broadcast', () =>
+    it('broadcast 广播事件', () =>
     {
-        //
-        ([] as Entity[]).concat(grandfather.entity, parent.entity, brother.entity, self.entity, child0.entity, child1.entity).forEach((v: Entity) =>
-        {
-            v.on('print', listenerFunc, v);
-        });
-
         result.length = 0;
         resultEvent = self.entity.broadcast('print', null);
-        deepEqual(['Entity-self', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 3);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 12);
     });
 
-    it('测试停止事件 IEvent.isStop', () =>
+    it('IEvent.isStop 测试停止事件', () =>
     {
-        //
+        // 停止事件
         self.entity.on('print', stop);
         //
         result.length = 0;
         resultEvent = self.entity.broadcast('print', null);
-        deepEqual(['Entity-self'].join(','), result.join(','));
+        deepEqual([
+            'Entity-self',
+        ], result);
         deepEqual(resultEvent.handles.length, 2);
 
-        //
+        // 恢复停止事件
         self.entity.off('print', stop);
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 5);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 20);
     });
 
-    it('测试停止冒泡 IEvent.isStopBubbles', () =>
+    it('IEvent.isStopTransmit 测试停止传播事件', () =>
     {
+        // 停止传播事件
+        self.entity.on('print', stopTransmit);
         //
+        result.length = 0;
+        resultEvent = self.entity.broadcast('print', null); // 事件在entity上被停止传播，无法传递到组件上。
+        deepEqual([
+            'Entity-self',
+        ], result);
+        deepEqual(resultEvent.handles.length, 2);
+
+        // 恢复停止事件
+        self.entity.off('print', stopTransmit);
+        result.length = 0;
+        resultEvent = self.entity.emit('print', null, true, true);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 20);
+    });
+
+    it('IEvent.isStopBubbles 测试停止冒泡', () =>
+    {
+        // 停止冒泡
         self.entity.on('print', stopBubbles);
         //
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 4);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 13);
 
         // 恢复冒泡
         self.entity.off('print', stopBubbles);
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 5);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 20);
     });
 
-    it('测试停止广播 IEvent.isStopBroadcast', () =>
+    it('IEvent.isStopBroadcast 测试停止广播', () =>
     {
         //
         self.entity.on('print', stopBroadcast);
         //
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 4);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+        ], result);
+        deepEqual(resultEvent.handles.length, 13);
 
         // 恢复广播
         self.entity.off('print', stopBroadcast);
         result.length = 0;
         resultEvent = self.entity.emit('print', null, true, true);
-        deepEqual(['Entity-self', 'Entity-parent', 'Entity-grandfather', 'Entity-child0', 'Entity-child1'].join(','), result.join(','));
-        deepEqual(resultEvent.handles.length, 5);
+        deepEqual([
+            'Entity-self', 'Node-self', 'Component0-self', 'Component1-self',
+            'Entity-parent', 'Node-parent', 'Component0-parent', 'Component1-parent',
+            'Entity-grandfather', 'Node-grandfather', 'Component0-grandfather', 'Component1-grandfather',
+            'Entity-child0', 'Node-child0', 'Component0-child0', 'Component1-child0',
+            'Entity-child1', 'Node-child1', 'Component0-child1', 'Component1-child1',
+        ], result);
+        deepEqual(resultEvent.handles.length, 20);
     });
 });
