@@ -133,10 +133,13 @@ export class EventEmitter<T = any>
         const eventEmitter = EventEmitter.getOrCreateEventEmitter(currentTarget);
         eventEmitter.handleEvent(e);
 
-        // 处理冒泡
+        // 向平级分享
+        eventEmitter.handelEventShare(e);
+
+        // 向上级报告
         eventEmitter.handelEventBubbles(e);
 
-        // 处理广播
+        // 向下级广播
         eventEmitter.handelEventBroadcast(e);
 
         return e.handles.length > 0; // 当处理次数大于0时表示已被处理。
@@ -445,12 +448,37 @@ export class EventEmitter<T = any>
     }
 
     /**
+     * 平级分享事件
+     * @param e 事件
+     */
+    protected handelEventShare<K extends keyof T & string>(e: IEvent<T[K]>)
+    {
+        if (!e.share || e.isStopShare || e.isStop || e.isStopTransmit) return;
+
+        const eventTarget = EventEmitter.emitterTargetMap.get(this);
+        if (typeof eventTarget?.getShareTargets === 'function')
+        {
+            const bubbleTargets = eventTarget.getShareTargets();
+            bubbleTargets?.forEach((v) =>
+            {
+                if (v === undefined || e.targets.indexOf(v) !== -1) return;
+
+                // 处理事件
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                eventEmitter.handleEvent(e);
+                // 继续分享事件
+                eventEmitter.handelEventShare(e);
+            });
+        }
+    }
+
+    /**
      * 处理事件冒泡
      * @param e 事件
      */
     protected handelEventBubbles<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        if (!e.bubbles || e.isStopBubbles || e.isStop) return;
+        if (!e.bubbles || e.isStopBubbles || e.isStop || e.isStopTransmit) return;
 
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBubbleTargets === 'function')
@@ -475,7 +503,7 @@ export class EventEmitter<T = any>
      */
     protected handelEventBroadcast<K extends keyof T & string>(e: IEvent<T[K]>)
     {
-        if (!e.broadcast || e.isStopBroadcast || e.isStop) return;
+        if (!e.broadcast || e.isStopBroadcast || e.isStop || e.isStopTransmit) return;
 
         const eventTarget = EventEmitter.emitterTargetMap.get(this);
         if (typeof eventTarget?.getBroadcastTargets === 'function')

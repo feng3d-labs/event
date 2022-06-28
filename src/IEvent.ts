@@ -26,31 +26,52 @@ export interface IEvent<T = any>
     currentTarget?: any;
 
     /**
-     * 表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+     * 是否向平级分享事件。
      *
-     * 如果该事件为冒泡事件，则事件将会向上传递给父节点。
+     * 如果值为true，则向平级分享事件，分享对象将由`IEventTarget.getShareTargets?()`获取。
+     */
+    share?: boolean;
+
+    /**
+     * 是否停止向平级分享事件。
+     */
+    isStopShare?: boolean;
+
+    /**
+     * 是否向上级报告事件。
+     *
+     * 如果值为true，则向上级报告事件，报告对象将由`IEventTarget.getBubbleTargets?()`获取。
      */
     bubbles?: boolean;
 
     /**
-     * 是否停止冒泡
+     * 是否向上级报告事件。
      */
     isStopBubbles?: boolean;
 
     /**
-     * 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
+     * 是否向下级广播事件。
      *
-     * 如果该事件为广播事件，则事件将会传递给所有的子节点。
+     * 如果值为true，则向下级广播事件，广播对象将由`IEventTarget.getBroadcastTargets?()`获取。
      */
     broadcast?: boolean;
 
     /**
-     * 是否停止广播
+     * 是否向下级广播事件。
      */
     isStopBroadcast?: boolean;
 
     /**
-     * 是否停止处理事件监听器
+     * 是否停止传播事件。
+     *
+     * 如果值为true，则停止事件传递（向平级分享、向上级报告、向下级广播）。
+     */
+    isStopTransmit?: boolean;
+
+    /**
+     * 是否停止事件。
+     *
+     * 如果值为true，则停止事件传递（向平级分享、向上级报告、向下级广播），并且停止后续的事件监听器的执行。
      */
     isStop?: boolean;
 

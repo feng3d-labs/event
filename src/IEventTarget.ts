@@ -4,7 +4,12 @@
 export interface IEventTarget
 {
     /**
-     * 获取冒泡的上级目标列表。
+     * 获取分享的平级目标列表。
+     */
+    getShareTargets?(): IEventTarget[];
+
+    /**
+     * 获取报告的上级目标列表。
      */
     getBubbleTargets?(): IEventTarget[];
 
