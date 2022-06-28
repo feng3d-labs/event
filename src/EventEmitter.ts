@@ -239,16 +239,7 @@ export class EventEmitter<T = any>
                 break;
             }
         }
-        for (i = 0; i < listeners.length; i++)
-        {
-            const element = listeners[i];
-
-            if (priority > element.priority)
-            {
-                break;
-            }
-        }
-        listeners.splice(i, 0, { listener, thisObject, priority, once });
+        listeners.push({ listener, thisObject, priority, once });
 
         return this;
     }
@@ -293,6 +284,7 @@ export class EventEmitter<T = any>
                 if (element.listener === listener && element.thisObject === thisObject)
                 {
                     listeners.splice(i, 1);
+                    break;
                 }
             }
             if (listeners.length === 0)
@@ -348,16 +340,7 @@ export class EventEmitter<T = any>
                 break;
             }
         }
-        for (i = 0; i < listeners.length; i++)
-        {
-            const element = listeners[i];
-
-            if (priority > element.priority)
-            {
-                break;
-            }
-        }
-        listeners.splice(i, 0, { listener, thisObject, priority, once });
+        listeners.push({ listener, thisObject, priority, once });
 
         return this;
     }
@@ -392,6 +375,7 @@ export class EventEmitter<T = any>
                 if (element.listener === listener && element.thisObject === thisObject)
                 {
                     listeners.splice(i, 1);
+                    break;
                 }
             }
         }
@@ -417,19 +401,13 @@ export class EventEmitter<T = any>
 
         let listeners = objectListener[e.type];
 
+        const callListeners: ListenerItem[] = [];
         if (listeners)
         {
             // 遍历调用事件回调函数
-            const listeners0 = listeners.concat();
+            listeners.forEach((v) => callListeners.push(v));
 
-            let i = 0;
-
-            for (i = 0; i < listeners0.length && !e.isStop; i++)
-            {
-                listeners0[i].listener.call(listeners0[i].thisObject, e);// 此处可能会删除当前事件，所以上面必须拷贝
-                e.handles.push(listeners0[i]);
-            }
-            for (i = listeners.length - 1; i >= 0; i--)
+            for (let i = listeners.length - 1; i >= 0; i--)
             {
                 if (listeners[i].once)
                 {
@@ -446,12 +424,8 @@ export class EventEmitter<T = any>
         if (listeners)
         {
             // 遍历调用事件回调函数
-            const listeners0 = listeners.concat();
+            listeners.forEach((v) => callListeners.push(v));
 
-            for (let i = 0; i < listeners0.length && !e.isStop; i++)
-            {
-                listeners0[i].listener.call(listeners0[i].thisObject, e);// 此处可能会删除当前事件，所以上面必须拷贝
-            }
             for (let i = listeners.length - 1; i >= 0; i--)
             {
                 if (listeners[i].once)
@@ -459,6 +433,14 @@ export class EventEmitter<T = any>
                     listeners.splice(i, 1);
                 }
             }
+        }
+
+        // 按优先级从高到底排序进行执行监听器。
+        callListeners.sort((a, b) => b.priority - a.priority);
+        for (let i = 0; i < callListeners.length && !e.isStop; i++)
+        {
+            callListeners[i].listener.call(callListeners[i].thisObject, e);
+            e.handles.push(callListeners[i]);
         }
     }
 
