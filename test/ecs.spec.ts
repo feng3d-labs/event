@@ -1,6 +1,7 @@
-/* eslint-disable func-style */
 import { deepEqual } from 'assert';
 import { anyEmitter, EventEmitter, IEventTarget } from '../src';
+
+// `Entity`与`Component`均继承`IEventTarget`或者实现EventEmitter，相互之间进行传递事件
 
 describe('anyEmitter', () =>
 {
@@ -74,9 +75,8 @@ describe('anyEmitter', () =>
         });
 
         anyEmitter.emit(nodeb, 'print', null, true);
-        const result0 = ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'];
 
-        deepEqual(result0, result);
+        deepEqual(['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'], result);
     });
 
     it('emit bubbles Entity-Component-System extends EventEmitter', () =>
@@ -151,7 +151,7 @@ describe('anyEmitter', () =>
         nodeb.parent = nodea;
 
         const result: string[] = [];
-        const listenerFunc = function listenerFunc() { result.push(this.name); };
+        function listenerFunc() { result.push(this.name); }
 
         // ---------- 使用 event 派发事件。
 
