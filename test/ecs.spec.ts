@@ -76,7 +76,7 @@ describe('anyEmitter', () =>
 
         anyEmitter.emit(nodeb, 'print', null, true);
 
-        deepEqual(['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'], result);
+        deepEqual(result, ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
     });
 
     it('emit bubbles Entity-Component-System extends EventEmitter', () =>
@@ -163,9 +163,7 @@ describe('anyEmitter', () =>
 
         anyEmitter.emit(nodeb, 'print', null, true);
 
-        const result0 = ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'];
-
-        deepEqual(result0, result);
+        deepEqual(result, ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
 
         // 再次添加事件，重复添加事件将被忽略
         result.length = 0;
@@ -175,7 +173,7 @@ describe('anyEmitter', () =>
         });
 
         anyEmitter.emit(nodeb, 'print', null, true);
-        deepEqual(result0, result);
+        deepEqual(result, ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
 
         // 移除事件
         result.length = 0;
@@ -185,7 +183,7 @@ describe('anyEmitter', () =>
         });
 
         anyEmitter.emit(nodeb, 'print', null, true);
-        deepEqual('', result.join(','));
+        deepEqual(result, []);
 
         // ---------- 使用 EventEmitter 派发事件。
         result.length = 0;
@@ -196,7 +194,7 @@ describe('anyEmitter', () =>
 
         nodeb.emit('print', null, true);
 
-        deepEqual(result0.join(','), result.join(','));
+        deepEqual(result, ['node-b', 'entity-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
 
         //
         result.length = 0;
@@ -206,9 +204,7 @@ describe('anyEmitter', () =>
         });
 
         nodeb.entity.emit('print', null, true);
-        const result1 = ['entity-b', 'node-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'];
-
-        deepEqual(result1.join(','), result.join(','));
+        deepEqual(result, ['entity-b', 'node-b', 'component0-b', 'component1-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
 
         //
         result.length = 0;
@@ -218,8 +214,6 @@ describe('anyEmitter', () =>
         });
 
         nodeb.entity.components[2].emit('print', null, true);
-        const result2 = ['component1-b', 'entity-b', 'node-b', 'component0-b', 'node-a', 'entity-a', 'component0-a', 'component1-a'];
-
-        deepEqual(result2.join(','), result.join(','));
+        deepEqual(result, ['component1-b', 'entity-b', 'node-b', 'component0-b', 'node-a', 'entity-a', 'component0-a', 'component1-a']);
     });
 });
