@@ -1,4 +1,4 @@
-import { ListenerItem } from './ListenerItem';
+import { EventListener } from './EventListener';
 
 /**
  * 事件
@@ -83,5 +83,5 @@ export interface IEvent<T = any>
     /**
      * 已处理的监听器列表。
      */
-    handles: ListenerItem[];
+    handles: EventListener[];
 }
