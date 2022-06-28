@@ -1,4 +1,5 @@
 import { IEventListener } from './IEventListener';
+import { IEventTarget } from './IEventTarget';
 
 /**
  * 事件
@@ -18,62 +19,62 @@ export interface IEvent<T = any>
     /**
      * 事件目标。
      */
-    target?: any;
+    target: IEventTarget;
 
     /**
-     * 当前正在使用某个事件监听器处理 Event 对象的对象。
+     * 当前正在处理事件监听的事件对象。
      */
-    currentTarget?: any;
+    currentTarget: IEventTarget;
 
     /**
      * 是否向平级分享事件。
      *
-     * 如果值为true，则向平级分享事件，分享对象将由`IEventTarget.getShareTargets?()`获取。
+     * 如果值为`true`，则向平级分享事件，分享对象将由`IEventTarget.getShareTargets?()`获取。
      */
-    share?: boolean;
+    share: boolean;
 
     /**
      * 是否停止向平级分享事件。
      */
-    isStopShare?: boolean;
+    isStopShare: boolean;
 
     /**
      * 是否向上级报告事件。
      *
-     * 如果值为true，则向上级报告事件，报告对象将由`IEventTarget.getBubbleTargets?()`获取。
+     * 如果值为`true`，则向上级报告事件，报告对象将由`IEventTarget.getBubbleTargets?()`获取。
      */
-    bubbles?: boolean;
+    bubbles: boolean;
 
     /**
-     * 是否向上级报告事件。
+     * 是否停止向上级报告事件。
      */
-    isStopBubbles?: boolean;
+    isStopBubbles: boolean;
 
     /**
      * 是否向下级广播事件。
      *
-     * 如果值为true，则向下级广播事件，广播对象将由`IEventTarget.getBroadcastTargets?()`获取。
+     * 如果值为`true`，则向下级广播事件，广播对象将由`IEventTarget.getBroadcastTargets?()`获取。
      */
-    broadcast?: boolean;
+    broadcast: boolean;
 
     /**
-     * 是否向下级广播事件。
+     * 是否停止向下级广播事件。
      */
-    isStopBroadcast?: boolean;
+    isStopBroadcast: boolean;
 
     /**
      * 是否停止传播事件。
      *
-     * 如果值为true，则停止事件传递（向平级分享、向上级报告、向下级广播）。
+     * 如果值为`true`，则停止事件传递（向平级分享、向上级报告、向下级广播）。
      */
-    isStopTransmit?: boolean;
+    isStopTransmit: boolean;
 
     /**
      * 是否停止事件。
      *
-     * 如果值为true，则停止事件传递（向平级分享、向上级报告、向下级广播），并且停止后续的事件监听器的执行。
+     * 如果值为`true`，则停止事件传递（向平级分享、向上级报告、向下级广播），并且停止后续的事件监听器的执行。
      */
-    isStop?: boolean;
+    isStop: boolean;
 
     /**
      * 事件流过的对象列表，事件路径

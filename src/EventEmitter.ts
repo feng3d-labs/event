@@ -1,6 +1,6 @@
 import { IEvent } from './IEvent';
-import { IEventTarget } from './IEventTarget';
 import { IEventListener } from './IEventListener';
+import { IEventTarget } from './IEventTarget';
 
 /**
  * 事件发射器
@@ -100,73 +100,70 @@ export class EventEmitter<T = any>
     }
 
     /**
-     * 发射事件
+     * 发射事件。
      *
      * 当事件重复流向一个对象时将不会被处理。
      *
-     * @param e   事件对象
+     * @param event   事件对象
      * @returns 返回事件是否被处理
      */
-    emitEvent<K extends keyof T & string>(e: IEvent<T[K]>)
+    emitEvent<K extends keyof T & string>(event: IEvent<T[K]>)
     {
-        // 初次发射时初始化默认值
-        if (!e.target)
-        {
-            // 初始化事件
-            e.target = e.target || null;
-            e.currentTarget = e.currentTarget || null;
-            e.isStop = e.isStop || false;
-            e.isStopBubbles = e.isStopBubbles || false;
-            e.isStopBroadcast = e.isStopBroadcast || false;
-            e.targets = e.targets || [];
-            e.handles = e.handles || [];
-        }
-
         const currentTarget = EventEmitter.emitterTargetMap.get(this);
 
-        if (e.targets.indexOf(currentTarget) !== -1)
+        if (event.targets.indexOf(currentTarget) !== -1)
         {
-            return false;
+            return event;
         }
 
         // 处理事件
         const eventEmitter = EventEmitter.getOrCreateEventEmitter(currentTarget);
-        eventEmitter.handleEvent(e);
+        eventEmitter.handleEvent(event);
 
         // 向平级分享
-        eventEmitter.handelEventShare(e);
+        eventEmitter.handelEventShare(event);
 
         // 向上级报告
-        eventEmitter.handelEventBubbles(e);
+        eventEmitter.handelEventBubbles(event);
 
         // 向下级广播
-        eventEmitter.handelEventBroadcast(e);
+        eventEmitter.handelEventBroadcast(event);
 
-        return e.handles.length > 0; // 当处理次数大于0时表示已被处理。
+        return event; // 当处理次数大于0时表示已被处理。
     }
 
     /**
-     * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 Event 对象。
+     * 发射事件。
      *
-     * @param type                      事件的类型。类型区分大小写。
-     * @param data                      事件携带的自定义数据。
-     * @param bubbles                   表示事件是否为冒泡到上级对象中。
-     * @param broadcast                 表示事件是否为广播到下级对象中。
+     * @param type 事件的类型。类型区分大小写。
+     * @param data 事件携带的自定义数据。
+     * @param bubbles 是否向上级报告事件。默认为`false`。
+     * @param broadcast 是否向下级广播事件。默认为`false`。
+     * @param share 是否向平级分享事件。默认为`true`。
      *
-     * @returns 返回发出后的事件。
+     * @returns 返回发射后的事件。
      */
-    emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false, broadcast = false)
+    emit<K extends keyof T & string>(type: K, data?: T[K], bubbles = false, broadcast = false, share = true)
     {
-        const e = {
-            type, data, bubbles, broadcast, target: null,
-            currentTarget: null, isStop: false, isStopBubbles: false, isStopBroadcast: false, targets: [], handles: [],
-            targetsIndex: 0,
-            targetsBubblesIndex: 0,
-        } as IEvent<T[K]>;
+        const event: IEvent<T[K]> = {
+            type,
+            data,
+            share,
+            bubbles,
+            broadcast,
+            target: undefined,
+            currentTarget: undefined,
+            isStopShare: false,
+            isStopBubbles: false,
+            isStopBroadcast: false,
+            isStopTransmit: false,
+            isStop: false,
+            targets: [],
+            handles: [],
+        };
+        this.emitEvent(event);
 
-        this.emitEvent(e);
-
-        return e;
+        return event;
     }
 
     /**

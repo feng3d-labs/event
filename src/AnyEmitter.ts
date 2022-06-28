@@ -53,29 +53,32 @@ export class AnyEmitter<O = any, T = any>
      *
      * 当事件重复流向一个对象时将不会被处理。
      *
-     * @param e                 事件对象。
+     * @param event                 事件对象。
      * @returns                 返回事件是否被该对象处理。
      */
-    emitEvent<K extends keyof T & string>(obj: O, e: IEvent<T[K]>)
+    emitEvent<K extends keyof T & string>(obj: O, event: IEvent<T[K]>)
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
-        const result = EventEmitter.getOrCreateEventEmitter(obj).emitEvent(e) || false;
+        EventEmitter.getOrCreateEventEmitter(obj).emitEvent(event);
 
-        return result;
+        return event;
     }
 
     /**
      * 将事件调度到事件流中. 事件目标是对其调用 emitEvent() 方法的 IEvent 对象。
-     * @param type                      事件的类型。类型区分大小写。
-     * @param data                      事件携带的自定义数据。
-     * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
+     *
+     * @param type 事件的类型。类型区分大小写。
+     * @param data 事件携带的自定义数据。
+     * @param bubbles 是否向上级报告事件。默认为`false`。
+     * @param broadcast 是否向下级广播事件。默认为`false`。
+     * @param share 是否向平级分享事件。默认为`true`。
      */
-    emit<K extends keyof T & string>(obj: O, type: K, data?: T[K], bubbles = false)
+    emit<K extends keyof T & string>(obj: O, type: K, data?: T[K], bubbles = false, broadcast = false, share = true)
     {
         console.assert(obj !== undefined && obj !== null, `被监听对象无法为undefined或者null！`);
-        const result = EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles) || false;
+        const event: IEvent<T[K]> = EventEmitter.getOrCreateEventEmitter(obj).emit(type, data, bubbles, broadcast, share);
 
-        return result;
+        return event;
     }
 
     /**
@@ -168,26 +171,6 @@ export class AnyEmitter<O = any, T = any>
         EventEmitter.getEventEmitter(obj)?.offAny(listener, thisObject);
 
         return this;
-    }
-
-    /**
-     * 初始化事件对象
-     *
-     * @param type                      事件的类型。类型区分大小写。
-     * @param data                      事件携带的自定义数据。
-     * @param bubbles                   表示事件是否为冒泡事件。如果事件可以冒泡，则此值为 true；否则为 false。
-     * @param broadcast                 表示事件是否为广播事件。如果事件可以广播，则此值为 true；否则为 false。
-     */
-    makeEvent<K extends keyof T & string>(type: K, data: T, bubbles = false, broadcast = false): IEvent<T>
-    {
-        const e = {
-            type, data, bubbles, broadcast, target: null,
-            currentTarget: null, isStop: false, isStopBubbles: false, isStopBroadcast: false, targets: [], handles: [],
-            targetsIndex: -1,
-            targetsBubblesIndex: -1,
-        } as IEvent<T>;
-
-        return e;
     }
 }
 
