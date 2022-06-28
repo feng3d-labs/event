@@ -9,16 +9,31 @@ interface EntityEventMap
     print: any;
 }
 
-class Component
+/**
+ * 组件上的事件将分享到实体上。
+ */
+class Component extends EventEmitter<EntityEventMap> implements IEventTarget
 {
     name: string;
     entity: Entity;
     constructor(name = 'Component')
     {
+        super();
         this.name = name;
+    }
+
+    /**
+     * 把事件分享到实体上。
+     */
+    getShareTargets()
+    {
+        return [this.entity];
     }
 }
 
+/**
+ * 实体上的事件将分享到每个组件上。
+ */
 class Entity extends EventEmitter<EntityEventMap> implements IEventTarget
 {
     name: string;
@@ -30,11 +45,27 @@ class Entity extends EventEmitter<EntityEventMap> implements IEventTarget
         this.name = name;
     }
 
-    getBubbleTargets()
+    /**
+     * 把事件分享到每个组件上。
+     */
+    getShareTargets()
     {
-        return [this.node?.parent?.entity];
+        return this.components;
     }
 
+    /**
+     * 把事件汇报给父结点。
+     */
+    getBubbleTargets()
+    {
+        const targets = [this.node?.parent?.entity];
+
+        return targets;
+    }
+
+    /**
+     * 把事件广播给每个子结点。
+     */
     getBroadcastTargets()
     {
         const targets = this.node?.children?.map((v) => v.entity);
