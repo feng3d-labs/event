@@ -11,7 +11,7 @@
             "ES2015",
             "DOM"
         ],
-        "outFile": "out/event.js"
+        "outFile": "out/index.js"
     },
     "files": [
         "src/AnyEmitter.ts",
