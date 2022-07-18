@@ -1,12 +1,11 @@
-import { AnyEmitter, anyEmitter } from './AnyEmitter';
-
-/**
- * 只针对Object的事件
- */
-export const objectEmitter: AnyEmitter<any, ObjectEventType> = anyEmitter;
-
-declare global
+namespace feng3d
 {
+
+    /**
+     * 只针对Object的事件
+     */
+    export const objectEmitter: AnyEmitter<any, ObjectEventType> = anyEmitter;
+
     /**
      * Object 事件类型
      */
