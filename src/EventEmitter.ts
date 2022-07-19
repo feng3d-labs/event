@@ -479,22 +479,27 @@ namespace feng3d
             if (!event.bubbles || event.isStopBubbles || event.isStop || event.isStopTransmit) return;
 
             const eventTarget = EventEmitter.emitterTargetMap.get(this);
+            let bubbleTargets: IEventTarget[] = [];
             if (typeof eventTarget?.getBubbleTargets === 'function')
             {
-                const bubbleTargets = eventTarget.getBubbleTargets();
-                bubbleTargets?.forEach((v) =>
-                {
-                    if (v === undefined || event.targets.indexOf(v) !== -1) return;
-
-                    // 处理事件
-                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                    eventEmitter.handleEvent(event);
-                    // 向平级分享事件
-                    eventEmitter.handelEventShare(event);
-                    // 向上级报告事件
-                    eventEmitter.handelEventBubbles(event);
-                });
+                bubbleTargets = eventTarget.getBubbleTargets();
             }
+            else if (eventTarget['parent'])
+            {
+                bubbleTargets = [eventTarget['parent']];
+            }
+            bubbleTargets?.forEach((v) =>
+            {
+                if (v === undefined || event.targets.indexOf(v) !== -1) return;
+
+                // 处理事件
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                eventEmitter.handleEvent(event);
+                // 向平级分享事件
+                eventEmitter.handelEventShare(event);
+                // 向上级报告事件
+                eventEmitter.handelEventBubbles(event);
+            });
         }
 
         /**
@@ -507,22 +512,27 @@ namespace feng3d
             if (!event.broadcast || event.isStopBroadcast || event.isStop || event.isStopTransmit) return;
 
             const eventTarget = EventEmitter.emitterTargetMap.get(this);
+            let broadcastTargets: IEventTarget[] = [];
             if (typeof eventTarget?.getBroadcastTargets === 'function')
             {
-                const broadcastTargets = eventTarget.getBroadcastTargets();
-                broadcastTargets?.forEach((v) =>
-                {
-                    if (v === undefined || event.targets.indexOf(v) !== -1) return;
-
-                    // 处理事件
-                    const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
-                    eventEmitter.handleEvent(event);
-                    // 向平级分享事件
-                    eventEmitter.handelEventShare(event);
-                    // 继续向下级广播事件
-                    eventEmitter.handelEventBroadcast(event);
-                });
+                broadcastTargets = eventTarget.getBroadcastTargets();
             }
+            else if (eventTarget['children'] && Array.isArray(eventTarget['children']))
+            {
+                broadcastTargets = eventTarget['children'];
+            }
+            broadcastTargets?.forEach((v) =>
+            {
+                if (v === undefined || event.targets.indexOf(v) !== -1) return;
+
+                // 处理事件
+                const eventEmitter = EventEmitter.getOrCreateEventEmitter(v);
+                eventEmitter.handleEvent(event);
+                // 向平级分享事件
+                eventEmitter.handelEventShare(event);
+                // 继续向下级广播事件
+                eventEmitter.handelEventBroadcast(event);
+            });
         }
     }
 
