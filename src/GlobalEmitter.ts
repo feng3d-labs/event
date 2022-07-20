@@ -1,4 +1,4 @@
-import { EventEmitter } from "./EventEmitter";
+import { EventEmitter } from './EventEmitter';
 
 /**
  * 全局事件发射器。

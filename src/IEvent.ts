@@ -1,5 +1,5 @@
-import { IEventListener } from "./IEventListener";
-import { IEventTarget } from "./IEventTarget";
+import { IEventListener } from './IEventListener';
+import { IEventTarget } from './IEventTarget';
 
 /**
  * 事件

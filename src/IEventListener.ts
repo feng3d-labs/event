@@ -1,4 +1,4 @@
-import { IEvent } from "./IEvent";
+import { IEvent } from './IEvent';
 
 /**
  * 事件监听器。

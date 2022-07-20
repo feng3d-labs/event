@@ -1,4 +1,4 @@
-import { AnyEmitter, anyEmitter } from "./AnyEmitter";
+import { AnyEmitter, anyEmitter } from './AnyEmitter';
 
 /**
  * 只针对Object的事件

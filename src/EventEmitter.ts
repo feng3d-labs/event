@@ -1,6 +1,6 @@
-import { IEvent } from "./IEvent";
-import { IEventListener } from "./IEventListener";
-import { IEventTarget } from "./IEventTarget";
+import { IEvent } from './IEvent';
+import { IEventListener } from './IEventListener';
+import { IEventTarget } from './IEventTarget';
 
 /**
  * 事件发射器
@@ -505,7 +505,7 @@ export class EventEmitter<T = any>
 
     /**
      * 向下级广播事件
-     * 
+     *
      * @param event 事件
      */
     protected handelEventBroadcast<K extends keyof T & string>(event: IEvent<T[K]>)
