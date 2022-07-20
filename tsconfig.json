@@ -1,25 +1,25 @@
 {
     "compilerOptions": {
         "target": "ES5",
+        "module": "CommonJS",
         "noImplicitAny": false,
         "sourceMap": true,
         "declarationMap": true,
         "declaration": true,
         "experimentalDecorators": true,
-        "composite": true,
         "lib": [
             "ES2015",
-            "DOM"
+            "DOM",
         ],
-        "outFile": "dist/index.js"
+        "outDir": "lib"
     },
-    "files": [
-        "src/AnyEmitter.ts",
-        "src/EventEmitter.ts",
-        "src/GlobalEmitter.ts",
-        "src/IEvent.ts",
-        "src/IEventListener.ts",
-        "src/IEventTarget.ts",
-        "src/ObjectEmitter.ts",
-    ]
+    "include": [
+        "src/**/*.ts"
+    ],
+    "ts-node": {
+        "files": true,
+        "compilerOptions": {
+            "esModuleInterop": true
+        }
+    }
 }
