@@ -1,6 +1,6 @@
 {
   "name": "@feng3d/event",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "事件系统",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
@@ -17,7 +17,8 @@
     "test": "mocha",
     "lint": "eslint --ext .js --ext .ts src test rollup.config.js --ignore-path .gitignore --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "prepublish": "npm run clean && npm run build:prod"
   },
   "repository": {
     "type": "git",

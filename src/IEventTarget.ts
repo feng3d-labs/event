@@ -9,12 +9,12 @@ export interface IEventTarget
     getShareTargets?(): IEventTarget[];
 
     /**
-     * 获取报告的上级目标列表。
+     * 获取报告的上级目标列表。默认返回 `[this.parent]` 。
      */
     getBubbleTargets?(): IEventTarget[];
 
     /**
-     * 获取广播的下级目标列表。
+     * 获取广播的下级目标列表。默认返回 `this.children` 。
      */
     getBroadcastTargets?(): IEventTarget[];
 }
