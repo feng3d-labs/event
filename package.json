@@ -17,7 +17,8 @@
     "test": "mocha",
     "lint": "eslint --ext .js --ext .ts src test rollup.config.js --ignore-path .gitignore --max-warnings 0",
     "lintfix": "npm run lint -- --fix",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "prepublish": "npm run clean && npm run build:prod"
   },
   "repository": {
     "type": "git",
